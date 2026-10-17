@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
 import logo from '../assets/logo.png';
+import Carrousel from '../components/Carrousel.astro';
 import { url } from '../lib/url';
 import { site } from '../lib/site';
 ---
@@ -29,6 +30,8 @@ import { site } from '../lib/site';
 			</div>
 		</div>
 	</section>
+
+	<Carrousel />
 
 	<section class="section">
 		<div class="conteneur">
