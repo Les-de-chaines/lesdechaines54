@@ -11,12 +11,18 @@ import { site } from '../lib/site';
 		<div class="conteneur hero-contenu">
 			<Image src={logo} alt={`Logo ${site.nom}`} width={420} height={420} loading="eager" class="hero-logo" />
 			<div>
-				<h1>Bienvenue chez les Dé-chaînés&nbsp;!</h1>
+				<h1>Bienvenue chez <span class="nom">{site.nom}&nbsp;!</span></h1>
 				<p class="intro">
-					Une association de <strong>jeux de société</strong> et de <strong>figurines</strong>,
-					avec un <strong>café associatif</strong> à {site.adresse.ville}. Venez jouer, peindre, apprendre et partager un
-					moment convivial autour d'un café et d'une part de gâteau.
+					Ici, les dés roulent, les armées s'affrontent et le café coule à flots (à prix doux, on n'est pas des
+					gobelins). Les Dé-chaînés, c'est une bande d'aventuriers qui a brisé ses chaînes pour partager
+					sa passion.
 				</p>
+				<p class="intro">Au programme&nbsp;: <strong>jeux de société</strong>, <strong>figurines</strong>, <strong>ateliers</strong> et <strong>tournois</strong>.
+				</p>
+				<p class="intro">Et parce qu'aucun aventurier ne part le ventre vide, le ravitaillement est assuré&nbsp;: boissons
+					chaudes, rafraîchissements et gourmandises maison.
+				</p>
+				<p class="intro">Novice ou vétéran couvert de cicatrices, en solo ou en compagnie&nbsp;: déchaînez l'aventurier qui sommeille en vous&nbsp;!</p>
 				<p class="actions">
 					<a href={url('evenements/')} class="bouton">Voir les événements</a>
 					<a href={url('infos/')} class="lien">Infos pratiques →</a>
@@ -27,19 +33,28 @@ import { site } from '../lib/site';
 
 	<section class="section">
 		<div class="conteneur">
-			<h2>Ce qu'on fait</h2>
+			<h2>Choisissez votre quête</h2>
 			<div class="grille">
 				<article class="carte">
 					<h3>🎲 Jeux de société</h3>
-					<p>Une ludothèque pour tous les âges : jeux familiaux, d'ambiance ou experts. On vous explique les règles&nbsp;!</p>
+					<p>
+						Une ludothèque qui ne demande qu'à être pillée&nbsp;: jeux en famille, d'ambiance ou de stratégie pour
+						cerveaux musclés. Les règles&nbsp;? On vous les explique, sans jet de sauvegarde.
+					</p>
 				</article>
 				<article class="carte">
 					<h3>⚔️ Figurines</h3>
-					<p>Parties de jeux de figurines, tournois et ateliers peinture pour débutants comme confirmés.</p>
+					<p>
+						Des champs de bataille à conquérir et des pinceaux à dompter&nbsp;: parties, tournois et ateliers peinture,
+						de la première sous-couche au chef-d'œuvre.
+					</p>
 				</article>
 				<article class="carte">
-					<h3>☕ Café associatif</h3>
-					<p>Boissons chaudes, boissons fraîches et gourmandises, à prix doux, pour accompagner vos parties.</p>
+					<h3>☕ La taverne</h3>
+					<p>
+						Toute aventure commence à la taverne. Boissons chaudes, rafraîchissements et gourmandises pour regagner
+						quelques points de vie entre deux parties.
+					</p>
 				</article>
 			</div>
 		</div>
@@ -47,8 +62,8 @@ import { site } from '../lib/site';
 
 	<section class="section bandeau">
 		<div class="conteneur">
-			<h2>Prochains événements</h2>
-			<p>Le calendrier arrive bientôt. En attendant, suivez-nous ou passez nous voir&nbsp;!</p>
+			<h2>Prochaines aventures</h2>
+			<p>Le tableau des quêtes se remplit bientôt. En attendant, lustrez vos dés et préparez vos pinceaux&nbsp;!</p>
 			<a href={url('evenements/')} class="bouton">Tous les événements</a>
 		</div>
 	</section>
@@ -74,13 +89,24 @@ import { site } from '../lib/site';
 
 	.hero-logo {
 		width: 100%;
-		max-width: 26rem;
+		max-width: 12rem;
 		margin-inline: auto;
 		display: block;
 	}
 
+	@media (min-width: 48rem) {
+		.hero-logo {
+			max-width: 26rem;
+		}
+	}
+
+
+	.nom {
+		white-space: nowrap;
+	}
+
 	.intro {
-		font-size: 1.2rem;
+		font-size: 1.1rem;
 	}
 
 	.actions {

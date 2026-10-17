@@ -2,6 +2,8 @@
 // Les valeurs entre crochets sont à compléter.
 export const site = {
 	nom: 'Les Dé-chaînés',
+	accroche: 'Café jeux associatif à Custines',
+	devise: "Déchaînez l'aventurier qui sommeille en vous !",
 	slogan: 'Jeux de société · Figurines · Ateliers · Tournois · Café & gourmandises',
 	adresse: {
 		rue: '2 Rue du 10 Septembre 1944',

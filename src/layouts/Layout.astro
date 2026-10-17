@@ -10,7 +10,7 @@ interface Props {
 	description?: string;
 }
 
-const { titre, description = `${site.nom}, association de jeux de société et figurines avec café associatif à ${site.adresse.ville}.` } = Astro.props;
+const { titre, description = `${site.nom} : ${site.accroche}. ${site.devise} Jeux de société, figurines, ateliers, tournois, café et gourmandises.` } = Astro.props;
 ---
 
 <!doctype html>
