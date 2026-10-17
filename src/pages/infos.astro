@@ -3,11 +3,24 @@ import Layout from '../layouts/Layout.astro';
 import { site } from '../lib/site';
 import { Image } from 'astro:assets';
 import plan from '../assets/plan.png';
+import { url } from '../lib/url';
 
 const { rue, codePostal, ville } = site.adresse;
 const adresse = encodeURIComponent(`${rue}, ${codePostal} ${ville}`);
-const itineraire = `https://www.google.com/maps/dir/?api=1&destination=${adresse}`;
 const lienCarte = `https://www.google.com/maps/search/?api=1&query=${adresse}`;
+
+// Moyens d'accès : `aVerifier` surligne en jaune les infos à confirmer avant publication
+const acces = [
+	{ icone: '🚗', texte: 'A31, sortie 24 « Custines »' },
+	{ icone: '🚌', texte: 'Depuis Nancy : bus SUB ligne 10, arrêt « Parc Eiffel », puis 15 min à pied' },
+	{ icone: '🚐', texte: 'Le Sit ligne 34 : arrêt « René II », à 100 m (sur réservation en journée)' },
+	{ icone: '🚆', texte: 'Gare de Pompey, à 2 km, puis VéloMoove ou ligne 34' },
+	{
+		icone: '🚲',
+		texte: 'Vélos en libre-service VéloMoove : station « Guingot » à 200 m',
+		lien: 'https://velomoove.bassinpompey.fr/fr/map',
+	},
+];
 
 // Tarifs à compléter
 const tarifs = [
@@ -17,90 +30,101 @@ const tarifs = [
 ];
 ---
 
-<Layout titre="Infos pratiques" description={`Adresse, horaires, adhésion et contact de l'association ${site.nom} à ${ville}.`}>
+<Layout titre="Infos pratiques" description={`Adresse, adhésion et contact de l'association ${site.nom} à ${ville}.`}>
 	<div class="conteneur section">
 		<h1>Infos pratiques</h1>
 
-		<div class="grille">
+
+		<div class="acces">
 			<section class="carte">
-				<h2>📍 Adresse</h2>
+				<h2>{site.nom}</h2>
 				<p>
-					<strong>{site.nom}</strong><br />
 					{rue}<br />
-					{codePostal} {ville}
+					{codePostal} {ville}<br />
+					<a href={lienCarte} target="_blank" rel="noopener">Voir sur Google Maps ↗</a>
 				</p>
-				<p><a href={itineraire}>Calculer un itinéraire</a></p>
-			</section>
-
-			<section class="carte">
-				<h2>🕒 Horaires</h2>
-				<ul class="liste">
-					<li><span class="a-completer">[Mercredi : 14h – 19h]</span></li>
-					<li><span class="a-completer">[Vendredi : 18h – 23h]</span></li>
-					<li><span class="a-completer">[Samedi : 14h – 23h]</span></li>
-				</ul>
-				<p>Horaires des événements : voir le calendrier.</p>
-			</section>
-
-			<section class="carte">
-				<h2>✉️ Contact</h2>
 				<p>
-					E-mail : <a href={`mailto:${site.email}`}>{site.email}</a><br />
-					Téléphone : {site.telephone}
+					<a href={`mailto:${site.email}`}>{site.email}</a><br />
+					<a href={`tel:${site.telephone.replace(/[^\d+]/g, '')}`}>{site.telephone}</a>
 				</p>
-			</section>
-		</div>
 
-		<section class="section">
-			<h2>Nous trouver</h2>
-			<a href={lienCarte} class="plan" target="_blank" rel="noopener">
-				<Image
-					src={plan}
-					alt={`Plan d'accès : ${rue}, ${codePostal} ${ville}`}
-					widths={[640, 960, 1280, 1600]}
-					sizes="(min-width: 70rem) 68rem, 100vw"
-				/>
-				<span class="bouton">Ouvrir dans Google Maps ↗</span>
-			</a>
-		</section>
+				<h3>Horaires</h3>
+				<p>
+					Pas d'horaires fixes&nbsp;: la taverne ouvre ses portes lors de nos événements. Les dates et horaires sont
+					annoncés dans le calendrier.
+				</p>
+				<p><a href={url('evenements/')}>Voir le calendrier →</a></p>
 
-		<section class="carte adhesion">
-			<h2>🎟️ Adhésion</h2>
-			<p>
-				L'adhésion permet de soutenir l'association et de participer à toutes ses activités pendant un an.
-			</p>
-			<table>
-				<tbody>
+				<h3>Venir</h3>
+				<ul class="moyens">
 					{
-						tarifs.map(({ formule, prix }) => (
-							<tr>
-								<th scope="row">{formule}</th>
-								<td>{prix}</td>
-							</tr>
+						acces.map(({ icone, texte, aVerifier, lien }) => (
+							<li>
+								<span aria-hidden="true">{icone}</span>
+								<span class={aVerifier ? 'a-completer' : undefined}>
+									{lien ? <a href={lien} target="_blank" rel="noopener">{texte}&nbsp;↗</a> : texte}
+								</span>
+							</li>
 						))
 					}
-				</tbody>
-			</table>
-			<p class="a-completer">[Le bouton d'adhésion HelloAsso sera ajouté ici.]</p>
-		</section>
+				</ul>
+			</section>
+			<div class="colonne">
+				<a href={lienCarte} class="carte plan" target="_blank" rel="noopener">
+					<Image
+						src={plan}
+						alt={`Plan d'accès : ${rue}, ${codePostal} ${ville}`}
+						widths={[640, 960, 1280, 1600]}
+						sizes="(min-width: 70rem) 45rem, 100vw"
+					/>
+				</a>
+
+			<section class="carte adhesion">
+				<h2>🎟️ Adhésion</h2>
+				<p>
+					L'adhésion permet de soutenir l'association et de participer à toutes ses activités pendant un an.
+				</p>
+				<table>
+					<tbody>
+						{
+							tarifs.map(({ formule, prix }) => (
+								<tr>
+									<th scope="row">{formule}</th>
+									<td>{prix}</td>
+								</tr>
+							))
+						}
+					</tbody>
+				</table>
+				<p class="a-completer">[Le bouton d'adhésion HelloAsso sera ajouté ici.]</p>
+			</section>
+			</div>
+		</div>
 	</div>
 </Layout>
 
 <style>
-	.liste {
-		padding-left: 1.2rem;
-		margin: 0 0 1rem;
+	/* Adresse à côté du plan sur grand écran, au-dessus sur mobile */
+	/* Infos à gauche ; plan et adhésion empilés à droite. Tout l'un sous l'autre sur mobile */
+	.acces {
+		display: grid;
+		gap: 1.5rem;
+		align-items: start;
+		margin-bottom: 3rem;
+	}
+
+	@media (min-width: 48rem) {
+		.acces {
+			grid-template-columns: minmax(16rem, 1fr) 2fr;
+		}
 	}
 
 	/* Capture d'écran de Google Maps : aucun cookie ni appel à Google tant qu'on ne clique pas.
 	   Le logo Google et les mentions en bas de l'image doivent rester visibles (conditions de Google). */
 	.plan {
-		position: relative;
 		display: block;
-		border: 3px solid var(--brun);
-		border-radius: var(--rayon);
+		padding: 0;
 		overflow: hidden;
-		text-decoration: none;
 	}
 
 	.plan img {
@@ -109,25 +133,29 @@ const tarifs = [
 		height: auto;
 	}
 
-	/* Sur mobile, le bouton passe sous le plan pour ne pas le masquer */
-	.plan .bouton {
-		display: block;
-		margin: 0.75rem;
-		font-size: 1rem;
-		text-align: center;
+	.acces h3 {
+		margin: 1.5rem 0 0.5rem;
 	}
 
-	@media (min-width: 48rem) {
-		.plan .bouton {
-			position: absolute;
-			top: 1rem;
-			left: 1rem;
-			margin: 0;
-		}
+	.acces p {
+		margin: 0 0 0.75rem;
 	}
 
-	.adhesion {
-		max-width: 40rem;
+	.moyens {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.moyens li {
+		display: flex;
+		gap: 0.6rem;
+		margin-bottom: 0.4rem;
+	}
+
+	.colonne {
+		display: grid;
+		gap: 1.5rem;
 	}
 
 	table {
