@@ -34,12 +34,18 @@ import { url } from '../lib/url';
 <style>
 	.fenetre-cookies {
 		position: fixed;
-		inset: auto 0 0;
+		left: 50%;
+		bottom: 1.5rem;
+		translate: -50% 0;
 		z-index: 100;
-		padding: 0.75rem 1rem;
-		color: var(--creme);
-		background: var(--brun);
-		border-top: 2px solid var(--vert);
+		width: max-content;
+		max-width: calc(100% - 2rem);
+		padding: 0.75rem 1.25rem;
+		color: var(--brun);
+		background: var(--blanc);
+		border: 2px solid var(--brun);
+		border-radius: var(--rayon);
+		box-shadow: 4px 4px 0 var(--vert);
 		font-size: 0.9rem;
 	}
 
@@ -56,7 +62,7 @@ import { url } from '../lib/url';
 	}
 
 	a {
-		color: var(--creme);
+		color: var(--rose-fonce);
 		white-space: nowrap;
 	}
 
@@ -72,7 +78,7 @@ import { url } from '../lib/url';
 		font: inherit;
 		font-size: 0.85rem;
 		font-weight: 700;
-		color: var(--creme);
+		color: var(--brun);
 		text-decoration: underline;
 		background: transparent;
 		border: 0;
@@ -80,6 +86,6 @@ import { url } from '../lib/url';
 	}
 
 	button:hover {
-		color: var(--vert);
+		color: var(--rose);
 	}
 </style>
