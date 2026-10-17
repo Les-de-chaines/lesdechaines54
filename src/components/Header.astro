@@ -1,0 +1,86 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/logo.png';
+import { url } from '../lib/url';
+import { site } from '../lib/site';
+
+const liens = [
+	{ href: url(), label: 'Accueil' },
+	{ href: url('evenements/'), label: 'Événements' },
+	{ href: url('infos/'), label: 'Infos pratiques' },
+];
+
+const actuel = Astro.url.pathname.replace(/\/?$/, '/');
+---
+
+<header>
+	<div class="conteneur barre">
+		<a href={url()} class="marque">
+			<Image src={logo} alt="" width={64} height={64} loading="eager" />
+			<span>{site.nom}</span>
+		</a>
+		<nav aria-label="Menu principal">
+			{
+				liens.map(({ href, label }) => (
+					<a href={href} aria-current={href === actuel ? 'page' : undefined}>
+						{label}
+					</a>
+				))
+			}
+		</nav>
+	</div>
+</header>
+
+<style>
+	header {
+		background: var(--brun);
+		border-bottom: 5px solid var(--vert);
+	}
+
+	.barre {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem 1.5rem;
+		padding-block: 0.5rem;
+	}
+
+	.marque {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		text-decoration: none;
+		font-family: var(--font-titre);
+		font-size: 1.6rem;
+		color: var(--creme);
+	}
+
+	.marque img {
+		border-radius: 50%;
+		background: var(--creme);
+	}
+
+	nav {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem 1.25rem;
+	}
+
+	nav a {
+		color: var(--creme);
+		text-decoration: none;
+		font-weight: 800;
+		padding-block: 0.25rem;
+		border-bottom: 3px solid transparent;
+	}
+
+	nav a:hover {
+		border-bottom-color: var(--vert);
+	}
+
+	nav a[aria-current='page'] {
+		color: var(--vert);
+		border-bottom-color: var(--vert);
+	}
+</style>

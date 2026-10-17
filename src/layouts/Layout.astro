@@ -1,6 +1,16 @@
 ---
-// BASE_URL vaut "/lesdechaines54/" sur GitHub Pages, "/" avec un nom de domaine
-const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { url } from '../lib/url';
+import { site } from '../lib/site';
+
+interface Props {
+	titre?: string;
+	description?: string;
+}
+
+const { titre, description = `${site.nom}, association de jeux de société et figurines avec café associatif à ${site.adresse.ville}.` } = Astro.props;
 ---
 
 <!doctype html>
@@ -8,21 +18,23 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
-		<link rel="icon" href={`${base}favicon.ico`} />
+		<link rel="icon" type="image/png" href={url('favicon.png')} />
+		<link rel="apple-touch-icon" href={url('favicon.png')} />
 		<meta name="generator" content={Astro.generator} />
-		<title>Les Dé-chaînés</title>
+		<title>{titre ? `${titre} · ${site.nom}` : site.nom}</title>
+		<meta name="description" content={description} />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Nunito:wght@400;700;800&display=swap"
+			rel="stylesheet"
+		/>
 	</head>
 	<body>
-		<slot />
+		<Header />
+		<main>
+			<slot />
+		</main>
+		<Footer />
 	</body>
 </html>
-
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>

@@ -1,11 +1,102 @@
 ---
-import Welcome from '../components/Welcome.astro';
+import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import logo from '../assets/logo.png';
+import { url } from '../lib/url';
+import { site } from '../lib/site';
 ---
 
 <Layout>
-	<Welcome />
+	<section class="hero">
+		<div class="conteneur hero-contenu">
+			<Image src={logo} alt={`Logo ${site.nom}`} width={420} height={420} loading="eager" class="hero-logo" />
+			<div>
+				<h1>Bienvenue chez les Dé-chaînés&nbsp;!</h1>
+				<p class="intro">
+					Une association de <strong>jeux de société</strong> et de <strong>figurines</strong>,
+					avec un <strong>café associatif</strong> à {site.adresse.ville}. Venez jouer, peindre, apprendre et partager un
+					moment convivial autour d'un café et d'une part de gâteau.
+				</p>
+				<p class="actions">
+					<a href={url('evenements/')} class="bouton">Voir les événements</a>
+					<a href={url('infos/')} class="lien">Infos pratiques →</a>
+				</p>
+			</div>
+		</div>
+	</section>
+
+	<section class="section">
+		<div class="conteneur">
+			<h2>Ce qu'on fait</h2>
+			<div class="grille">
+				<article class="carte">
+					<h3>🎲 Jeux de société</h3>
+					<p>Une ludothèque pour tous les âges : jeux familiaux, d'ambiance ou experts. On vous explique les règles&nbsp;!</p>
+				</article>
+				<article class="carte">
+					<h3>⚔️ Figurines</h3>
+					<p>Parties de jeux de figurines, tournois et ateliers peinture pour débutants comme confirmés.</p>
+				</article>
+				<article class="carte">
+					<h3>☕ Café associatif</h3>
+					<p>Boissons chaudes, boissons fraîches et gourmandises, à prix doux, pour accompagner vos parties.</p>
+				</article>
+			</div>
+		</div>
+	</section>
+
+	<section class="section bandeau">
+		<div class="conteneur">
+			<h2>Prochains événements</h2>
+			<p>Le calendrier arrive bientôt. En attendant, suivez-nous ou passez nous voir&nbsp;!</p>
+			<a href={url('evenements/')} class="bouton">Tous les événements</a>
+		</div>
+	</section>
 </Layout>
+
+<style>
+	.hero {
+		padding-block: 2.5rem;
+	}
+
+	.hero-contenu {
+		display: grid;
+		gap: 2rem;
+		align-items: center;
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	@media (min-width: 48rem) {
+		.hero-contenu {
+			grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+		}
+	}
+
+	.hero-logo {
+		width: 100%;
+		max-width: 26rem;
+		margin-inline: auto;
+		display: block;
+	}
+
+	.intro {
+		font-size: 1.2rem;
+	}
+
+	.actions {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 1rem 1.5rem;
+		margin-top: 1.5rem;
+	}
+
+	.lien {
+		font-weight: 800;
+	}
+
+	.bandeau {
+		background: var(--vert-clair);
+		border-block: 3px solid var(--brun);
+	}
+</style>

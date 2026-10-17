@@ -1,0 +1,73 @@
+---
+import { url } from '../lib/url';
+import { site } from '../lib/site';
+
+const reseaux = Object.entries(site.reseaux).filter(([, lien]) => lien);
+---
+
+<footer>
+	<div class="conteneur grille">
+		<div>
+			<p class="nom">{site.nom}</p>
+			<p>Association loi 1901<br />{site.slogan}</p>
+		</div>
+		<div>
+			<p class="titre">Nous trouver</p>
+			<p>
+				{site.adresse.rue}<br />
+				{site.adresse.codePostal} {site.adresse.ville}
+			</p>
+			<p><a href={url('infos/')}>Infos pratiques</a></p>
+		</div>
+		<div>
+			<p class="titre">Contact</p>
+			<p><a href={`mailto:${site.email}`}>{site.email}</a></p>
+			{
+				reseaux.length > 0 && (
+					<p>
+						{reseaux.map(([nom, lien]) => (
+							<a href={lien} class="reseau">
+								{nom}
+							</a>
+						))}
+					</p>
+				)
+			}
+		</div>
+	</div>
+</footer>
+
+<style>
+	footer {
+		background: var(--brun);
+		color: var(--creme);
+		border-top: 5px solid var(--vert);
+		padding-block: 2rem 1rem;
+		font-size: 0.95rem;
+	}
+
+	p {
+		margin: 0 0 0.5rem;
+	}
+
+	.nom {
+		font-family: var(--font-titre);
+		font-size: 1.5rem;
+	}
+
+	.titre {
+		font-weight: 800;
+		color: var(--vert);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	a {
+		color: var(--creme);
+	}
+
+	.reseau {
+		margin-right: 1rem;
+		text-transform: capitalize;
+	}
+</style>
