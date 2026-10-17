@@ -1,11 +1,11 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { site } from '../lib/site';
-import CarteGoogle from '../components/CarteGoogle.astro';
+import { Image } from 'astro:assets';
+import plan from '../assets/plan.png';
 
 const { rue, codePostal, ville } = site.adresse;
 const adresse = encodeURIComponent(`${rue}, ${codePostal} ${ville}`);
-const carte = `https://maps.google.com/maps?q=${adresse}&z=16&hl=fr&output=embed`;
 const itineraire = `https://www.google.com/maps/dir/?api=1&destination=${adresse}`;
 const lienCarte = `https://www.google.com/maps/search/?api=1&query=${adresse}`;
 
@@ -53,7 +53,15 @@ const tarifs = [
 
 		<section class="section">
 			<h2>Nous trouver</h2>
-			<CarteGoogle src={carte} lien={lienCarte} titre={`Plan d'accès : ${rue}, ${codePostal} ${ville}`} />
+			<a href={lienCarte} class="plan" target="_blank" rel="noopener">
+				<Image
+					src={plan}
+					alt={`Plan d'accès : ${rue}, ${codePostal} ${ville}`}
+					widths={[640, 960, 1280, 1600]}
+					sizes="(min-width: 70rem) 68rem, 100vw"
+				/>
+				<span class="bouton">Ouvrir dans Google Maps ↗</span>
+			</a>
 		</section>
 
 		<section class="carte adhesion">
@@ -82,6 +90,40 @@ const tarifs = [
 	.liste {
 		padding-left: 1.2rem;
 		margin: 0 0 1rem;
+	}
+
+	/* Capture d'écran de Google Maps : aucun cookie ni appel à Google tant qu'on ne clique pas.
+	   Le logo Google et les mentions en bas de l'image doivent rester visibles (conditions de Google). */
+	.plan {
+		position: relative;
+		display: block;
+		border: 3px solid var(--brun);
+		border-radius: var(--rayon);
+		overflow: hidden;
+		text-decoration: none;
+	}
+
+	.plan img {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+
+	/* Sur mobile, le bouton passe sous le plan pour ne pas le masquer */
+	.plan .bouton {
+		display: block;
+		margin: 0.75rem;
+		font-size: 1rem;
+		text-align: center;
+	}
+
+	@media (min-width: 48rem) {
+		.plan .bouton {
+			position: absolute;
+			top: 1rem;
+			left: 1rem;
+			margin: 0;
+		}
 	}
 
 	.adhesion {
