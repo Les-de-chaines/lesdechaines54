@@ -1,0 +1,122 @@
+---
+import fs from 'node:fs';
+import Layout from '../layouts/Layout.astro';
+import Embleme from '../components/Embleme.astro';
+import { url } from '../lib/url';
+import { site } from '../lib/site';
+
+// Documents officiels : déposer les PDF dans public/documents/ avec ces noms de fichier.
+// Tant qu'un fichier est absent, la page affiche « bientôt disponible ».
+const documents = [
+	{ titre: 'Statuts', fichier: 'statuts.pdf' },
+	{ titre: 'Règlement intérieur', fichier: 'reglement-interieur.pdf' },
+].map((doc) => ({ ...doc, disponible: fs.existsSync(`public/documents/${doc.fichier}`) }));
+---
+
+<Layout titre="Qui sommes-nous" description={`Présentation de l'association ${site.nom} : son objet, son fonctionnement, ses statuts.`}>
+	<div class="conteneur section">
+		<h1>Qui <span class="insecable">sommes-nous&nbsp;?</span></h1>
+
+		<div class="grille-page">
+			<section class="carte">
+				<h2 class="titre-embleme"><Embleme />La guilde</h2>
+				<p class="a-completer">
+					[Votre histoire : comment l'association est née, qui sont les membres fondateurs, ce qui vous a donné envie de
+					créer un lieu de jeu à {site.adresse.ville}…]
+				</p>
+			</section>
+
+			<section class="carte">
+				<h2 class="titre-embleme"><Embleme />Notre objet</h2>
+				<p>Selon nos statuts, l'association a pour but de&nbsp;:</p>
+				<ul class="a-completer">
+					<li>[promouvoir la pratique des jeux de société et des jeux de figurines]</li>
+					<li>[créer du lien social autour du jeu, pour tous les âges]</li>
+					<li>[faire vivre un café associatif, lieu de rencontre et de convivialité]</li>
+				</ul>
+			</section>
+
+			<section class="carte">
+				<h2 class="titre-embleme"><Embleme />Notre fonctionnement</h2>
+				<h3>Une association loi 1901</h3>
+				<p>
+					{site.nom} est une association à but non lucratif, animée par des bénévoles. Chaque euro récolté sert à
+					faire vivre la taverne&nbsp;: jeux, matériel, événements.
+				</p>
+				<h3>Le bureau</h3>
+				<ul class="liste">
+					<li>Présidente&nbsp;: {site.presidente}</li>
+					<li class="a-completer">[Trésorier·e : Prénom NOM]</li>
+					<li class="a-completer">[Secrétaire : Prénom NOM]</li>
+				</ul>
+				<h3>Les adhérents</h3>
+				<p>
+					L'adhésion annuelle donne accès à toutes nos activités et permet de voter à l'assemblée générale. <a href={url('infos/')}>Voir les tarifs →</a>
+				</p>
+				<h3>Les bénévoles</h3>
+				<p>
+					Envie de tenir le comptoir, d'animer une partie ou d'organiser un tournoi&nbsp;? Toute aide est la bienvenue&nbsp;: <a href={`mailto:${site.email}`}>écrivez-nous</a>.
+				</p>
+				<p class="documents">
+					{
+						documents.map(({ titre, fichier, disponible }, i) => (
+							<>
+								{i > 0 && ' · '}
+								{disponible ? (
+									<a href={url(`documents/${fichier}`)} target="_blank" rel="noopener">{titre} (PDF)&nbsp;↗</a>
+								) : (
+									<span>{titre} (bientôt disponible)</span>
+								)}
+							</>
+						))
+					}
+				</p>
+			</section>
+		</div>
+	</div>
+</Layout>
+
+<style>
+	/* La guilde et Notre objet côte à côte, Notre fonctionnement en dessous sur toute la largeur */
+	.grille-page {
+		display: grid;
+		gap: 1.5rem;
+		align-items: start;
+	}
+
+	@media (min-width: 48rem) {
+		.grille-page {
+			grid-template-columns: 1fr 1fr;
+		}
+
+		.grille-page > :last-child {
+			grid-column: 1 / -1;
+		}
+	}
+
+	.insecable {
+		white-space: nowrap;
+	}
+
+	h3 {
+		margin: 1.25rem 0 0.4rem;
+	}
+
+	.liste,
+	ul.a-completer {
+		padding-left: 1.2rem;
+	}
+
+	/* Documents officiels : une petite ligne en fin de section */
+	.documents {
+		margin: 1.75rem 0 0;
+		padding-top: 1rem;
+		border-top: 1px solid rgb(62 36 22 / 0.15);
+		font-size: 0.85rem;
+	}
+
+	.documents span {
+		font-style: italic;
+		opacity: 0.7;
+	}
+</style>

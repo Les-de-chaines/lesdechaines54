@@ -117,6 +117,55 @@ img {
 	box-shadow: 4px 4px 0 var(--vert);
 }
 
+/* Titre centré, suivi de l'emblème du logo en séparateur */
+.titre-embleme {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.4rem;
+	text-align: center;
+}
+
+.titre-embleme .embleme {
+	order: 1;
+	color: var(--brun);
+}
+
+.titre-embleme .embleme svg {
+	flex: none;
+	width: 2.6rem;
+}
+
+/* En petit, on épaissit légèrement le trait du dessin */
+.titre-embleme .embleme path {
+	stroke: currentColor;
+	stroke-width: 8;
+	stroke-linejoin: round;
+}
+
+/* Emblème en filigrane, très pâle, dans le coin d'un bloc */
+.avec-filigrane {
+	position: relative;
+	overflow: hidden;
+	isolation: isolate;
+}
+
+.avec-filigrane > .filigrane {
+	position: absolute;
+	z-index: -1;
+	right: -3rem;
+	bottom: -3rem;
+	width: min(28rem, 70%);
+	color: var(--brun);
+	opacity: 0.07;
+	pointer-events: none;
+}
+
+footer.avec-filigrane > .filigrane {
+	color: var(--creme);
+	opacity: 0.06;
+}
+
 .a-completer {
 	background: #fff3b0;
 	padding: 0 0.25em;

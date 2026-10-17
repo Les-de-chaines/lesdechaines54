@@ -3,6 +3,7 @@ import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
 import logo from '../assets/logo.png';
 import Carrousel from '../components/Carrousel.astro';
+import Embleme from '../components/Embleme.astro';
 import { url } from '../lib/url';
 import { site } from '../lib/site';
 ---
@@ -37,21 +38,21 @@ import { site } from '../lib/site';
 			<h2>Choisissez votre quête</h2>
 			<div class="grille">
 				<article class="carte">
-					<h3>🎲 Jeux de société</h3>
+					<h3 class="titre-embleme"><Embleme />Jeux de société</h3>
 					<p>
 						Une ludothèque qui ne demande qu'à être pillée&nbsp;: jeux en famille, d'ambiance ou de stratégie pour
 						cerveaux musclés. Les règles&nbsp;? On vous les explique, sans jet de sauvegarde.
 					</p>
 				</article>
 				<article class="carte">
-					<h3>⚔️ Figurines</h3>
+					<h3 class="titre-embleme"><Embleme />Figurines</h3>
 					<p>
 						Des champs de bataille à conquérir et des pinceaux à dompter&nbsp;: parties, tournois et ateliers peinture,
 						de la première sous-couche au chef-d'œuvre.
 					</p>
 				</article>
 				<article class="carte">
-					<h3>☕ La taverne</h3>
+					<h3 class="titre-embleme"><Embleme />La taverne</h3>
 					<p>
 						Toute aventure commence à la taverne&nbsp;: un comptoir pour souffler, papoter et regagner quelques points
 						de vie entre deux parties.
@@ -61,7 +62,8 @@ import { site } from '../lib/site';
 		</div>
 	</section>
 
-	<section class="section bandeau">
+	<section class="section bandeau avec-filigrane">
+		<Embleme class="filigrane" />
 		<div class="conteneur">
 			<h2>Prochaines aventures</h2>
 			<p>Le tableau des quêtes se remplit bientôt. En attendant, lustrez vos dés et préparez vos pinceaux&nbsp;!</p>

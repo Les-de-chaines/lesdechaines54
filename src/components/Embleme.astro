@@ -1,0 +1,27 @@
+---
+// Emblème du site : le dé aux chaînes brisées, vectorisé depuis le logo (src/assets/embleme.svg).
+// Il prend la couleur du texte (currentColor) : à colorer en CSS selon l'usage.
+import svg from '../assets/embleme.svg?raw';
+
+interface Props {
+	class?: string;
+}
+
+const { class: classe } = Astro.props;
+---
+
+<span class:list={['embleme', classe]} aria-hidden="true" set:html={svg} />
+
+<style>
+	:where(.embleme) {
+		display: inline-block;
+		line-height: 0;
+	}
+
+	/* :where() = priorité nulle, pour que chaque usage puisse fixer sa propre taille */
+	:where(.embleme) :global(svg) {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+</style>

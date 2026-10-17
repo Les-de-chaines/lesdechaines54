@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Embleme from '../components/Embleme.astro';
 import { site } from '../lib/site';
 import { Image } from 'astro:assets';
 import plan from '../assets/plan.png';
@@ -11,13 +12,13 @@ const lienCarte = `https://www.google.com/maps/search/?api=1&query=${adresse}`;
 
 // Moyens d'accès : `aVerifier` surligne en jaune les infos à confirmer avant publication
 const acces = [
-	{ icone: '🚗', texte: 'A31, sortie 24 « Custines »' },
-	{ icone: '🚌', texte: 'Depuis Nancy : bus SUB ligne 10, arrêt « Parc Eiffel », puis 15 min à pied' },
-	{ icone: '🚐', texte: 'Le Sit ligne 34 : arrêt « René II », à 100 m (sur réservation en journée)' },
-	{ icone: '🚆', texte: 'Gare de Pompey, à 2 km, puis VéloMoove ou ligne 34' },
+	{ mode: 'En voiture', texte: 'A31, sortie 24 « Custines »' },
+	{ mode: 'En bus', texte: 'depuis Nancy, ligne SUB 10, arrêt « Parc Eiffel », puis 15 min à pied' },
+	{ mode: 'En bus local', texte: 'Le Sit ligne 34, arrêt « René II », à 100 m (sur réservation en journée)' },
+	{ mode: 'En train', texte: 'gare de Pompey, à 2 km, puis VéloMoove ou ligne 34' },
 	{
-		icone: '🚲',
-		texte: 'Vélos en libre-service VéloMoove : station « Guingot » à 200 m',
+		mode: 'À vélo',
+		texte: 'VéloMoove en libre-service, station « Guingot » à 200 m',
 		lien: 'https://velomoove.bassinpompey.fr/fr/map',
 	},
 ];
@@ -37,7 +38,7 @@ const tarifs = [
 
 		<div class="acces">
 			<section class="carte">
-				<h2>{site.nom}</h2>
+				<h2 class="titre-embleme"><Embleme />{site.nom}</h2>
 				<p>
 					{rue}<br />
 					{codePostal} {ville}<br />
@@ -58,9 +59,9 @@ const tarifs = [
 				<h3>Venir</h3>
 				<ul class="moyens">
 					{
-						acces.map(({ icone, texte, aVerifier, lien }) => (
+						acces.map(({ mode, texte, aVerifier, lien }) => (
 							<li>
-								<span aria-hidden="true">{icone}</span>
+								<strong>{mode}&nbsp;:</strong>{' '}
 								<span class={aVerifier ? 'a-completer' : undefined}>
 									{lien ? <a href={lien} target="_blank" rel="noopener">{texte}&nbsp;↗</a> : texte}
 								</span>
@@ -80,7 +81,7 @@ const tarifs = [
 				</a>
 
 			<section class="carte adhesion">
-				<h2>🎟️ Adhésion</h2>
+				<h2 class="titre-embleme"><Embleme />Adhésion</h2>
 				<p>
 					L'adhésion permet de soutenir l'association et de participer à toutes ses activités pendant un an.
 				</p>
@@ -148,9 +149,7 @@ const tarifs = [
 	}
 
 	.moyens li {
-		display: flex;
-		gap: 0.6rem;
-		margin-bottom: 0.4rem;
+		margin-bottom: 0.5rem;
 	}
 
 	.colonne {

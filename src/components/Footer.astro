@@ -1,11 +1,13 @@
 ---
 import { url } from '../lib/url';
 import { site } from '../lib/site';
+import Embleme from './Embleme.astro';
 
 const reseaux = Object.entries(site.reseaux).filter(([, lien]) => lien);
 ---
 
-<footer>
+<footer class="avec-filigrane">
+	<Embleme class="filigrane" />
 	<div class="conteneur grille">
 		<div>
 			<p class="nom">{site.nom}</p>
