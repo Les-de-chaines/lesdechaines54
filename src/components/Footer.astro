@@ -35,7 +35,16 @@ const reseaux = Object.entries(site.reseaux).filter(([, lien]) => lien);
 			}
 		</div>
 	</div>
+	<p class="conteneur legal">
+		<a href={url('mentions-legales/')}>Mentions légales</a> · <a href={url('confidentialite/')}>Confidentialité &amp; cookies</a> · <button type="button" class="gerer-cookies">Gérer les cookies</button>
+	</p>
 </footer>
+
+<script>
+	import { ouvrirFenetre } from '../lib/consentement';
+
+	document.querySelector('.gerer-cookies')?.addEventListener('click', ouvrirFenetre);
+</script>
 
 <style>
 	footer {
@@ -64,6 +73,23 @@ const reseaux = Object.entries(site.reseaux).filter(([, lien]) => lien);
 
 	a {
 		color: var(--creme);
+	}
+
+	.legal {
+		margin-top: 1.5rem;
+		padding-top: 1rem;
+		border-top: 1px solid rgb(251 246 234 / 0.2);
+		font-size: 0.85rem;
+	}
+
+	.gerer-cookies {
+		padding: 0;
+		font: inherit;
+		color: var(--creme);
+		text-decoration: underline;
+		background: none;
+		border: 0;
+		cursor: pointer;
 	}
 
 	.reseau {

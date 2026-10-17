@@ -1,0 +1,91 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { site } from '../lib/site';
+---
+
+<Layout titre="Confidentialité et cookies" description={`Comment ${site.nom} protège vos données sur ce site.`}>
+	<div class="conteneur section texte">
+		<h1>Confidentialité &amp; cookies</h1>
+
+		<p>
+			Chez {site.nom}, on préfère les dés aux traqueurs&nbsp;: ce site ne contient <strong>ni publicité, ni outil de
+			statistiques, ni cookie</strong> déposé par nos soins.
+		</p>
+
+		<h2>La carte Google Maps</h2>
+		<p>
+			La page Infos pratiques propose une carte Google Maps. Google y dépose des cookies et collecte des données de
+			navigation (adresse IP, interactions avec la carte).
+		</p>
+		<p>
+			C'est pourquoi, à votre arrivée sur le site, une fenêtre vous demande si vous <strong>acceptez ou refusez</strong>
+			ces cookies. Tant que vous n'avez pas accepté, la carte n'est pas chargée et aucune donnée n'est envoyée à Google.
+			Votre choix est enregistré dans votre navigateur (et seulement là), et vous pouvez le changer à tout moment&nbsp;:
+		</p>
+		<p>
+			<button type="button" class="bouton" id="basculer"></button>
+			<span id="etat" role="status"></span>
+		</p>
+		<p>
+			Pour en savoir plus sur l'usage de vos données par Google&nbsp;: <a href="https://policies.google.com/privacy?hl=fr" target="_blank" rel="noopener">règles de confidentialité de Google ↗</a>.
+		</p>
+
+		<h2>Les inscriptions et adhésions</h2>
+		<p>
+			Les inscriptions aux événements et les adhésions passent par <strong>HelloAsso</strong>. Les informations que
+			vous y saisissez sont traitées par HelloAsso et transmises à l'association uniquement pour gérer votre
+			inscription ou votre adhésion.
+		</p>
+
+		<h2>L'hébergement</h2>
+		<p>
+			Ce site est hébergé par <strong>GitHub Pages</strong> (GitHub Inc., 88 Colin P. Kelly Jr Street, San Francisco,
+			CA 94107, États-Unis), qui peut enregistrer l'adresse IP des visiteurs à des fins de sécurité. Les polices de
+			caractères sont servies directement par le site, sans passer par un service tiers.
+		</p>
+
+		<h2>Vos droits</h2>
+		<p>
+			Pour toute question sur vos données, ou pour exercer vos droits d'accès, de rectification et de suppression,
+			écrivez-nous à <a href={`mailto:${site.email}`}>{site.email}</a>.
+		</p>
+	</div>
+</Layout>
+
+<script>
+	import { enregistrerChoix, lireChoix, surChangement } from '../lib/consentement';
+
+	const bouton = document.getElementById('basculer') as HTMLButtonElement;
+	const etat = document.getElementById('etat')!;
+
+	const majEtat = () => {
+		const accepte = lireChoix() === 'accepte';
+		bouton.textContent = accepte ? 'Refuser les cookies' : 'Accepter les cookies';
+		etat.textContent = {
+			accepte: 'Vous avez accepté les cookies de Google Maps.',
+			refuse: 'Vous avez refusé les cookies de Google Maps.',
+			aucun: "Vous n'avez pas encore fait de choix : la carte Google Maps n'est pas chargée.",
+		}[lireChoix() ?? 'aucun'];
+	};
+
+	bouton.addEventListener('click', () => enregistrerChoix(lireChoix() === 'accepte' ? 'refuse' : 'accepte'));
+	surChangement(majEtat);
+	majEtat();
+</script>
+
+<style>
+	.texte {
+		max-width: 46rem;
+	}
+
+	h2 {
+		margin-top: 2rem;
+	}
+
+	#etat {
+		display: block;
+		margin-top: 0.75rem;
+		font-size: 0.95rem;
+	}
+
+</style>

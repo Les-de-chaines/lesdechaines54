@@ -1,11 +1,13 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { site } from '../lib/site';
+import CarteGoogle from '../components/CarteGoogle.astro';
 
-const { rue, codePostal, ville, lat, lon } = site.adresse;
-const marge = 0.003;
-const carte = `https://www.openstreetmap.org/export/embed.html?bbox=${lon - marge * 2},${lat - marge},${lon + marge * 2},${lat + marge}&layer=mapnik&marker=${lat},${lon}`;
-const itineraire = `https://www.openstreetmap.org/directions?to=${lat},${lon}`;
+const { rue, codePostal, ville } = site.adresse;
+const adresse = encodeURIComponent(`${rue}, ${codePostal} ${ville}`);
+const carte = `https://maps.google.com/maps?q=${adresse}&z=16&hl=fr&output=embed`;
+const itineraire = `https://www.google.com/maps/dir/?api=1&destination=${adresse}`;
+const lienCarte = `https://www.google.com/maps/search/?api=1&query=${adresse}`;
 
 // Tarifs à compléter
 const tarifs = [
@@ -51,11 +53,7 @@ const tarifs = [
 
 		<section class="section">
 			<h2>Nous trouver</h2>
-			<iframe
-				class="plan"
-				src={carte}
-				title={`Plan d'accès : ${rue}, ${codePostal} ${ville}`}
-				loading="lazy"></iframe>
+			<CarteGoogle src={carte} lien={lienCarte} titre={`Plan d'accès : ${rue}, ${codePostal} ${ville}`} />
 		</section>
 
 		<section class="carte adhesion">
@@ -84,13 +82,6 @@ const tarifs = [
 	.liste {
 		padding-left: 1.2rem;
 		margin: 0 0 1rem;
-	}
-
-	.plan {
-		width: 100%;
-		height: 24rem;
-		border: 3px solid var(--brun);
-		border-radius: var(--rayon);
 	}
 
 	.adhesion {

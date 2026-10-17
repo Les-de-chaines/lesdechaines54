@@ -1,0 +1,80 @@
+---
+// Carte Google Maps chargée uniquement si le visiteur a accepté les cookies (fenêtre d'accueil).
+// Tant qu'il n'a pas accepté, aucune requête n'est envoyée à Google.
+import { url } from '../lib/url';
+
+interface Props {
+	src: string; // URL d'intégration Google Maps
+	lien: string; // URL Google Maps à ouvrir dans un nouvel onglet
+	titre: string;
+}
+
+const { src, lien, titre } = Astro.props;
+---
+
+<div class="carte-google" data-src={src} data-titre={titre}>
+	<div class="bloquee">
+		<p>🗺️ La carte <strong>Google Maps</strong> s'affiche si vous acceptez ses cookies.</p>
+		<button type="button" class="bouton accepter">Accepter et afficher la carte</button>
+		<p>
+			<a href={lien} target="_blank" rel="noopener">Ouvrir dans Google Maps ↗</a> · <a href={url('confidentialite/')}>En savoir plus</a>
+		</p>
+	</div>
+</div>
+
+<script>
+	import { enregistrerChoix, lireChoix, surChangement } from '../lib/consentement';
+
+	document.querySelectorAll<HTMLElement>('.carte-google').forEach((conteneur) => {
+		const encart = conteneur.querySelector<HTMLElement>('.bloquee')!;
+
+		const afficher = () => {
+			if (conteneur.querySelector('iframe')) return;
+			const iframe = document.createElement('iframe');
+			iframe.src = conteneur.dataset.src!;
+			iframe.title = conteneur.dataset.titre!;
+			iframe.loading = 'lazy';
+			iframe.referrerPolicy = 'no-referrer-when-downgrade';
+			conteneur.replaceChildren(iframe);
+		};
+
+		const masquer = () => conteneur.replaceChildren(encart);
+
+		if (lireChoix() === 'accepte') afficher();
+		surChangement((choix) => (choix === 'accepte' ? afficher() : masquer()));
+		encart.querySelector('.accepter')!.addEventListener('click', () => enregistrerChoix('accepte'));
+	});
+</script>
+
+<style>
+	.carte-google {
+		width: 100%;
+		height: 24rem;
+		border: 3px solid var(--brun);
+		border-radius: var(--rayon);
+		overflow: hidden;
+		background: var(--vert-clair);
+	}
+
+	.carte-google :global(iframe) {
+		display: block;
+		width: 100%;
+		height: 100%;
+		border: 0;
+	}
+
+	.bloquee {
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 1rem;
+		padding: 1.5rem;
+		text-align: center;
+	}
+
+	.bloquee p {
+		margin: 0;
+	}
+</style>

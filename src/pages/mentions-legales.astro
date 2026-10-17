@@ -1,0 +1,52 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { url } from '../lib/url';
+import { site } from '../lib/site';
+
+const { rue, codePostal, ville } = site.adresse;
+---
+
+<Layout titre="Mentions légales" description={`Mentions légales du site de l'association ${site.nom}.`}>
+	<div class="conteneur section texte">
+		<h1>Mentions légales</h1>
+
+		<h2>Éditeur du site</h2>
+		<p>
+			<strong>{site.nom}</strong>, association loi 1901<br />
+			Siège social&nbsp;: {rue}, {codePostal} {ville}<br />
+			<span class="a-completer">N° RNA&nbsp;: [W000000000]</span><br />
+			E-mail&nbsp;: <a href={`mailto:${site.email}`}>{site.email}</a>
+		</p>
+
+		<h2>Directrice de la publication</h2>
+		<p>{site.presidente}, présidente de l'association.</p>
+
+		<h2>Hébergement</h2>
+		<p>
+			GitHub Pages, service de GitHub Inc.<br />
+			88 Colin P. Kelly Jr Street, San Francisco, CA 94107, États-Unis<br />
+			<a href="https://github.com" target="_blank" rel="noopener">github.com ↗</a>
+		</p>
+
+		<h2>Propriété intellectuelle</h2>
+		<p>
+			Les textes, le logo et les photos de ce site appartiennent à l'association {site.nom}, sauf mention contraire.
+			Toute reproduction sans autorisation est interdite.
+		</p>
+
+		<h2>Données personnelles</h2>
+		<p>
+			Pour savoir comment vos données sont traitées et gérer vos choix de cookies, consultez notre page <a href={url('confidentialite/')}>Confidentialité &amp; cookies</a>.
+		</p>
+	</div>
+</Layout>
+
+<style>
+	.texte {
+		max-width: 46rem;
+	}
+
+	h2 {
+		margin-top: 2rem;
+	}
+</style>
