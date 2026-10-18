@@ -3,6 +3,7 @@ import { Image } from 'astro:assets';
 import logo from '../assets/logo.png';
 import { url } from '../lib/url';
 import { site } from '../lib/site';
+import Reseaux from './Reseaux.astro';
 
 const liens = [
 	{ href: url(), label: 'Accueil' },
@@ -31,6 +32,7 @@ const actuel = Astro.url.pathname.replace(/\/?$/, '/');
 					</a>
 				))
 			}
+			<span class="reseaux-menu"><Reseaux variante="icones" /></span>
 		</nav>
 	</div>
 </header>
@@ -99,6 +101,23 @@ const actuel = Astro.url.pathname.replace(/\/?$/, '/');
 
 	nav a:hover {
 		border-bottom-color: var(--vert);
+	}
+
+	/* Les icônes ne prennent pas le soulignement vert des liens du menu */
+	.reseaux-menu {
+		display: flex;
+		align-items: center;
+		padding-left: 1.25rem;
+		color: var(--creme);
+		border-left: 2px solid rgb(251 246 234 / 0.25);
+	}
+
+	.reseaux-menu :global(a) {
+		border-bottom: none;
+	}
+
+	.reseaux-menu :global(a:hover) {
+		color: var(--vert);
 	}
 
 	nav a[aria-current='page'] {

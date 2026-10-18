@@ -2,8 +2,7 @@
 import { url } from '../lib/url';
 import { site } from '../lib/site';
 import Embleme from './Embleme.astro';
-
-const reseaux = Object.entries(site.reseaux).filter(([, lien]) => lien);
+import Reseaux from './Reseaux.astro';
 ---
 
 <footer class="avec-filigrane">
@@ -24,17 +23,8 @@ const reseaux = Object.entries(site.reseaux).filter(([, lien]) => lien);
 		<div>
 			<p class="titre">Contact</p>
 			<p><a href={`mailto:${site.email}`}>{site.email}</a></p>
-			{
-				reseaux.length > 0 && (
-					<p>
-						{reseaux.map(([nom, lien]) => (
-							<a href={lien} class="reseau">
-								{nom}
-							</a>
-						))}
-					</p>
-				)
-			}
+			<p class="titre suivre">Suivez-nous</p>
+			<Reseaux variante="discret" />
 		</div>
 	</div>
 	<p class="conteneur legal">
@@ -78,8 +68,7 @@ const reseaux = Object.entries(site.reseaux).filter(([, lien]) => lien);
 		font-size: 0.85rem;
 	}
 
-	.reseau {
-		margin-right: 1rem;
-		text-transform: capitalize;
+	.suivre {
+		margin-top: 1rem;
 	}
 </style>

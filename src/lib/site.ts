@@ -16,8 +16,8 @@ export const site = {
 	email: '[contact@exemple.fr]',
 	telephone: '[06 00 00 00 00]',
 	reseaux: {
-		facebook: '',
-		instagram: '',
+		facebook: 'https://www.facebook.com/profile.php?id=61595152898987',
+		instagram: 'https://www.instagram.com/les_de_chaines/',
 		discord: '',
 	},
 };

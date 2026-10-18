@@ -4,6 +4,7 @@ import Layout from '../layouts/Layout.astro';
 import logo from '../assets/logo.png';
 import Carrousel from '../components/Carrousel.astro';
 import Embleme from '../components/Embleme.astro';
+import Reseaux from '../components/Reseaux.astro';
 import { url } from '../lib/url';
 import { site } from '../lib/site';
 ---
@@ -23,6 +24,10 @@ import { site } from '../lib/site';
 					chaudes, rafraîchissements et gourmandises maison.
 				</p>
 				<p class="intro">Novice ou vétéran couvert de cicatrices, en solo ou en compagnie&nbsp;: déchaînez l'aventurier qui sommeille en vous&nbsp;!</p>
+				<p class="intro">
+					Pour suivre nos aventures, rejoignez-nous sur <a href={site.reseaux.facebook} target="_blank" rel="noopener">Facebook</a>{' '}
+					et <a href={site.reseaux.instagram} target="_blank" rel="noopener">Instagram</a>&nbsp;!
+				</p>
 				<p class="actions">
 					<a href={url('evenements/')} class="bouton">Voir les événements</a>
 					<a href={url('infos/')} class="lien">Infos pratiques →</a>
@@ -67,7 +72,14 @@ import { site } from '../lib/site';
 		<div class="conteneur">
 			<h2>Prochaines aventures</h2>
 			<p>Le tableau des quêtes se remplit bientôt. En attendant, lustrez vos dés et préparez vos pinceaux&nbsp;!</p>
-			<a href={url('evenements/')} class="bouton">Tous les événements</a>
+			<p>
+				<strong>Toutes nos annonces passent par Facebook et Instagram</strong>&nbsp;: dates des soirées, tournois,
+				ateliers, nouveaux jeux… Abonnez-vous pour ne rater aucune aventure&nbsp;!
+			</p>
+			<div class="suivre">
+				<Reseaux />
+			</div>
+			<a href={url('evenements/')} class="lien">Tous les événements →</a>
 		</div>
 	</section>
 </Layout>
@@ -121,6 +133,10 @@ import { site } from '../lib/site';
 
 	.lien {
 		font-weight: 800;
+	}
+
+	.suivre {
+		margin-block: 1.5rem;
 	}
 
 	.bandeau {

@@ -1,0 +1,147 @@
+---
+// Liens vers nos réseaux sociaux (renseignés dans src/lib/site.ts).
+// Simples liens, sans widget ni bouton « J'aime » intégré : aucun traqueur sur notre site.
+// - variante "boutons" : gros boutons aux couleurs de chaque réseau, pour inviter à nous suivre
+// - variante "discret" : icône + nom, pour le pied de page
+// - variante "icones" : icônes seules, pour le menu (le nom reste lu par les lecteurs d'écran)
+import { site } from '../lib/site';
+
+interface Props {
+	variante?: 'boutons' | 'discret' | 'icones';
+}
+
+const { variante = 'boutons' } = Astro.props;
+
+const infos: Record<string, { nom: string; icone: string }> = {
+	facebook: {
+		nom: 'Facebook',
+		icone: '<path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />',
+	},
+	instagram: {
+		nom: 'Instagram',
+		icone:
+			'<rect x="2" y="2" width="20" height="20" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="0.6" fill="currentColor" />',
+	},
+	discord: {
+		nom: 'Discord',
+		icone:
+			'<path d="M8 7.5a14 14 0 0 1 8 0M7.5 17c3 1.3 6 1.3 9 0M6.5 6.5 5 7.5C3.5 10 3 13 3.5 16.5c1.2 1.3 2.5 2 4 2.5l1-2M17.5 6.5l1.5 1c1.5 2.5 2 5.5 1.5 9-1.2 1.3-2.5 2-4 2.5l-1-2" /><circle cx="9.5" cy="12.5" r="1.2" /><circle cx="14.5" cy="12.5" r="1.2" />',
+	},
+};
+
+const liens = Object.entries(site.reseaux)
+	.filter(([cle, lien]) => lien && infos[cle])
+	.map(([cle, lien]) => ({ cle, lien, ...infos[cle] }));
+---
+
+{
+	liens.length > 0 && (
+		<ul class:list={['reseaux', variante]}>
+			{liens.map(({ cle, lien, nom, icone }) => (
+				<li>
+					<a href={lien} class={cle} target="_blank" rel="noopener">
+						<svg viewBox="0 0 24 24" aria-hidden="true" set:html={icone} />
+						<span>{nom}</span>
+					</a>
+				</li>
+			))}
+		</ul>
+	)
+}
+
+<style>
+	.reseaux {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem 1rem;
+	}
+
+	a {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5em;
+		text-decoration: none;
+	}
+
+	svg {
+		flex: none;
+		width: 1.4em;
+		height: 1.4em;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+
+	/* Gros boutons, dans le style des boutons du site mais aux couleurs de chaque réseau */
+	.boutons a {
+		font-family: var(--font-titre);
+		font-size: 1.05rem;
+		letter-spacing: 0.05em;
+		color: var(--blanc);
+		border: 2px solid var(--brun);
+		border-radius: 999px;
+		padding: 0.5em 1.3em 0.45em 1em;
+		box-shadow: 3px 3px 0 var(--brun);
+		transition: transform 0.1s, box-shadow 0.1s;
+	}
+
+	.boutons a:hover {
+		transform: translate(-1px, -1px);
+		box-shadow: 4px 4px 0 var(--brun);
+	}
+
+	.boutons span {
+		padding-top: 0.15em; /* la police des titres est un peu haute */
+	}
+
+	.boutons .facebook {
+		background: #1877f2;
+	}
+
+	.boutons .instagram {
+		background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+	}
+
+	.boutons .discord {
+		background: #5865f2;
+	}
+
+	/* Version discrète : hérite de la couleur du texte autour */
+	.discret a {
+		color: inherit;
+		font-weight: 700;
+	}
+
+	.discret a:hover span {
+		text-decoration: underline;
+	}
+
+	/* Icônes seules : le nom est masqué à l'écran mais lu par les lecteurs d'écran */
+	.icones {
+		gap: 0.75rem;
+	}
+
+	.icones a {
+		color: inherit;
+		padding-block: 0.25rem;
+		transition: transform 0.1s;
+	}
+
+	.icones a:hover {
+		transform: scale(1.15);
+	}
+
+	.icones span {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+</style>

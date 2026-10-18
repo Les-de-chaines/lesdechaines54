@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { site } from '../../lib/site';
+import Reseaux from '../../components/Reseaux.astro';
 ---
 
 <Layout titre="Événements" description={`Soirées jeux, tournois et ateliers figurines organisés par ${site.nom}.`}>
@@ -10,6 +11,11 @@ import { site } from '../../lib/site';
 
 		<div class="carte">
 			<p>Aucun événement pour le moment. Revenez bientôt&nbsp;!</p>
+			<p>
+				Pour être prévenu dès qu'une date tombe, suivez-nous sur les réseaux&nbsp;: c'est là que nous annonçons
+				tous nos rendez-vous en premier.
+			</p>
+			<Reseaux />
 		</div>
 	</div>
 </Layout>

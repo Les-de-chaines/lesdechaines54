@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Embleme from '../components/Embleme.astro';
+import Reseaux from '../components/Reseaux.astro';
 import { site } from '../lib/site';
 import { Image } from 'astro:assets';
 import plan from '../assets/plan.png';
@@ -48,11 +49,13 @@ const tarifs = [
 					<a href={`mailto:${site.email}`}>{site.email}</a><br />
 					<a href={`tel:${site.telephone.replace(/[^\d+]/g, '')}`}>{site.telephone}</a>
 				</p>
+				<p>Vous pouvez aussi nous écrire en message privé&nbsp;:</p>
+				<Reseaux variante="discret" />
 
 				<h3>Horaires</h3>
 				<p>
 					Pas d'horaires fixes&nbsp;: la taverne ouvre ses portes lors de nos événements. Les dates et horaires sont
-					annoncés dans le calendrier.
+					annoncés dans le calendrier et sur nos réseaux sociaux.
 				</p>
 				<p><a href={url('evenements/')}>Voir le calendrier →</a></p>
 
