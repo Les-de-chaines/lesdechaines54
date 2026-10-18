@@ -13,6 +13,9 @@ const liens = [
 ];
 
 const actuel = Astro.url.pathname.replace(/\/?$/, '/');
+
+// Sur tout petit écran, le nom passe sur deux lignes : on coupe après « Les », jamais sur le trait d'union
+const [premierMot, ...suite] = site.nom.split(' ');
 ---
 
 <header>
@@ -20,7 +23,7 @@ const actuel = Astro.url.pathname.replace(/\/?$/, '/');
 		<a href={url()} class="marque">
 			<Image src={logo} alt="" width={64} height={64} loading="eager" />
 			<span class="textes">
-				<span class="nom">{site.nom}</span>
+				<span class="nom">{premierMot} <span class="insecable">{suite.join(' ')}</span></span>
 				<span class="accroche">{site.accroche}</span>
 			</span>
 		</a>
@@ -37,8 +40,8 @@ const actuel = Astro.url.pathname.replace(/\/?$/, '/');
 					</a>
 				))
 			}
-			<span class="reseaux-menu"><Reseaux variante="icones" /></span>
 		</nav>
+		<span class="reseaux-menu"><Reseaux variante="icones" /></span>
 	</div>
 </header>
 
@@ -68,7 +71,6 @@ const actuel = Astro.url.pathname.replace(/\/?$/, '/');
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
-		justify-content: space-between;
 		gap: 0.5rem 1.5rem;
 		padding-block: 0.5rem;
 	}
@@ -89,7 +91,8 @@ const actuel = Astro.url.pathname.replace(/\/?$/, '/');
 		line-height: 1.1;
 	}
 
-	.nom {
+	.nom,
+	.insecable {
 		white-space: nowrap;
 	}
 
@@ -106,7 +109,9 @@ const actuel = Astro.url.pathname.replace(/\/?$/, '/');
 		background: var(--creme);
 	}
 
+	/* Sur grand écran : logo à gauche, puis menu et réseaux poussés à droite */
 	nav {
+		margin-left: auto;
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.25rem 1.25rem;
@@ -128,13 +133,18 @@ const actuel = Astro.url.pathname.replace(/\/?$/, '/');
 	.reseaux-menu {
 		display: flex;
 		align-items: center;
-		padding-left: 1.25rem;
+		padding-left: 1.5rem;
 		color: var(--creme);
 		border-left: 2px solid rgb(251 246 234 / 0.25);
 	}
 
 	.reseaux-menu :global(a) {
 		border-bottom: none;
+	}
+
+	/* Trait plus fin que la version du pied de page */
+	.reseaux-menu :global(svg) {
+		stroke-width: 1.5;
 	}
 
 	.reseaux-menu :global(a:hover) {
@@ -149,15 +159,27 @@ const actuel = Astro.url.pathname.replace(/\/?$/, '/');
 	/* Bouton burger : trois barres qui se changent en croix quand le menu est ouvert */
 	.burger {
 		display: none;
+		flex: none;
 		align-items: center;
-		gap: 0.5rem;
-		font: 800 0.95rem var(--font-texte);
+		justify-content: center;
+		width: 2.75rem;
+		height: 2.75rem;
+		padding: 0;
 		color: var(--creme);
 		background: none;
 		border: 2px solid var(--creme);
-		border-radius: 999px;
-		padding: 0.4rem 0.9rem;
+		border-radius: 50%;
 		cursor: pointer;
+	}
+
+	/* Le mot « Menu » est masqué à l'écran mais lu par les lecteurs d'écran */
+	.libelle {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
 	}
 
 	.burger:hover,
@@ -210,40 +232,46 @@ const actuel = Astro.url.pathname.replace(/\/?$/, '/');
 		transform: translateY(-6px) rotate(-45deg);
 	}
 
-	/* Sur mobile : le menu se replie derrière le bouton et se déplie en liste, un lien par ligne */
-	@media (max-width: 47.99rem) {
+	/* Sur mobile et tablette (le menu complet ne tient pas sur une ligne) : logo, icônes des réseaux (toujours visibles) et bouton sur une ligne ;
+	   les liens se replient derrière le bouton et se déplient en liste, un lien par ligne */
+	@media (max-width: 59.99rem) {
 		.barre {
-			column-gap: 0.5rem;
+			column-gap: 0.75rem;
 		}
 
-		/* Le logo prend la place restante ; le slogan peut passer sur deux lignes pour laisser le bouton à côté */
+		/* Le logo prend la place restante ; le slogan peut passer sur deux lignes */
 		.marque {
 			flex: 1 1 0;
 			min-width: 0;
 			gap: 0.5rem;
-			font-size: 1.35rem;
+			font-size: 1.25rem;
 		}
 
 		.marque img {
 			flex: none;
-		}
-
-		.marque img {
 			width: 2.75rem;
 			height: 2.75rem;
-		}
-
-		.burger {
-			flex: none;
-			padding: 0.4rem 0.75rem;
 		}
 
 		.accroche {
 			font-size: 0.75rem;
 		}
 
+		/* Ordre à l'écran : logo, réseaux, bouton, puis les liens dépliés */
+		.reseaux-menu {
+			order: 1;
+			padding-left: 0;
+			border-left: none;
+		}
+
+		.reseaux-menu :global(svg) {
+			width: 1.3rem;
+			height: 1.3rem;
+		}
+
 		.burger:not([hidden]) {
 			display: inline-flex;
+			order: 2;
 		}
 
 		.burger:not([hidden]) + nav {
@@ -255,6 +283,8 @@ const actuel = Astro.url.pathname.replace(/\/?$/, '/');
 		}
 
 		nav {
+			order: 3;
+			margin-left: 0;
 			flex-direction: column;
 			flex-basis: 100%;
 			gap: 0;
@@ -266,6 +296,10 @@ const actuel = Astro.url.pathname.replace(/\/?$/, '/');
 			border-bottom: 1px solid rgb(251 246 234 / 0.15);
 		}
 
+		nav a:last-child {
+			border-bottom: none;
+		}
+
 		nav a[aria-current='page'] {
 			border-bottom-color: rgb(251 246 234 / 0.15);
 		}
@@ -273,34 +307,34 @@ const actuel = Astro.url.pathname.replace(/\/?$/, '/');
 		nav a[aria-current='page']::before {
 			content: '▸ ';
 		}
-
-		.reseaux-menu {
-			padding: 0.75rem 0 0;
-			border-left: none;
-		}
-
-		.reseaux-menu :global(svg) {
-			width: 1.75rem;
-			height: 1.75rem;
-		}
 	}
 
-	/* Très petits écrans : le mot « Menu » est masqué à l'écran (mais lu par les lecteurs d'écran) */
+	/* Très petits écrans : tout est un peu resserré, et le nom peut passer sur deux lignes en dernier recours */
 	@media (max-width: 23rem) {
-		.burger {
-			justify-content: center;
-			width: 2.75rem;
-			height: 2.75rem;
-			padding: 0;
+		.nom {
+			white-space: normal;
 		}
 
-		.libelle {
-			position: absolute;
-			width: 1px;
-			height: 1px;
-			overflow: hidden;
-			clip-path: inset(50%);
-			white-space: nowrap;
+		.barre {
+			column-gap: 0.5rem;
+		}
+
+		.marque {
+			font-size: 1.05rem;
+		}
+
+		.marque img {
+			width: 2rem;
+			height: 2rem;
+		}
+
+		.burger {
+			width: 2.4rem;
+			height: 2.4rem;
+		}
+
+		.reseaux-menu :global(ul) {
+			gap: 0.5rem;
 		}
 	}
 </style>

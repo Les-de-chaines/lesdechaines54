@@ -62,6 +62,15 @@ h3 {
 	font-size: 1.35rem;
 }
 
+/* Sur mobile, les grands titres sont centrés, comme les titres des cartes.
+   Les intertitres des pages de texte (mentions légales, confidentialité) restent à gauche, avec leur texte. */
+@media (max-width: 47.99rem) {
+	h1,
+	.section > .conteneur > h2 {
+		text-align: center;
+	}
+}
+
 a {
 	color: var(--rose-fonce);
 }

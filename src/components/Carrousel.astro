@@ -54,7 +54,7 @@ const photos = Object.entries(fichiers)
 }
 
 <script>
-	const DELAI = 5000; // millisecondes entre deux photos
+	const DELAI = 3000; // millisecondes entre deux photos
 
 	document.querySelectorAll<HTMLElement>('.carrousel').forEach((carrousel) => {
 		const piste = carrousel.querySelector<HTMLElement>('.piste')!;
@@ -168,6 +168,26 @@ const photos = Object.entries(fichiers)
 
 	.suivant {
 		right: 1.75rem;
+	}
+
+	/* Sur mobile, petites flèches pour laisser voir la photo (on peut aussi faire glisser du doigt) */
+	@media (max-width: 47.99rem) {
+		.fleche {
+			width: 1.9rem;
+			height: 1.9rem;
+			font-size: 1.4rem;
+			padding-bottom: 0.15rem;
+			border-width: 2px;
+			background: rgb(251 246 234 / 0.85);
+		}
+
+		.precedent {
+			left: 1.5rem;
+		}
+
+		.suivant {
+			right: 1.5rem;
+		}
 	}
 
 	.points {
