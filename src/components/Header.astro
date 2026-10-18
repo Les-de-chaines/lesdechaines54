@@ -24,7 +24,12 @@ const actuel = Astro.url.pathname.replace(/\/?$/, '/');
 				<span class="accroche">{site.accroche}</span>
 			</span>
 		</a>
-		<nav aria-label="Menu principal">
+		<!-- Bouton du menu mobile : caché tant que le script ne l'a pas activé (sans JavaScript, le menu reste déplié) -->
+		<button type="button" class="burger" aria-expanded="false" aria-controls="menu" hidden>
+			<span class="barres" aria-hidden="true"><span></span></span>
+			<span class="libelle">Menu</span>
+		</button>
+		<nav id="menu" aria-label="Menu principal">
 			{
 				liens.map(({ href, label }) => (
 					<a href={href} aria-current={href === actuel ? 'page' : undefined}>
@@ -36,6 +41,22 @@ const actuel = Astro.url.pathname.replace(/\/?$/, '/');
 		</nav>
 	</div>
 </header>
+
+<script>
+	const bouton = document.querySelector<HTMLButtonElement>('.burger');
+	if (bouton) {
+		bouton.hidden = false;
+		const basculer = (ouvert: boolean) => bouton.setAttribute('aria-expanded', String(ouvert));
+		bouton.addEventListener('click', () => basculer(bouton.getAttribute('aria-expanded') !== 'true'));
+		// Échap referme le menu et rend la main au bouton
+		document.addEventListener('keydown', (e) => {
+			if (e.key === 'Escape' && bouton.getAttribute('aria-expanded') === 'true') {
+				basculer(false);
+				bouton.focus();
+			}
+		});
+	}
+</script>
 
 <style>
 	header {
@@ -123,5 +144,163 @@ const actuel = Astro.url.pathname.replace(/\/?$/, '/');
 	nav a[aria-current='page'] {
 		color: var(--vert);
 		border-bottom-color: var(--vert);
+	}
+
+	/* Bouton burger : trois barres qui se changent en croix quand le menu est ouvert */
+	.burger {
+		display: none;
+		align-items: center;
+		gap: 0.5rem;
+		font: 800 0.95rem var(--font-texte);
+		color: var(--creme);
+		background: none;
+		border: 2px solid var(--creme);
+		border-radius: 999px;
+		padding: 0.4rem 0.9rem;
+		cursor: pointer;
+	}
+
+	.burger:hover,
+	.burger[aria-expanded='true'] {
+		color: var(--vert);
+		border-color: var(--vert);
+	}
+
+	.barres,
+	.barres::before,
+	.barres::after,
+	.barres span {
+		display: block;
+		width: 1.1rem;
+		height: 2px;
+		background: currentColor;
+		border-radius: 2px;
+		transition: transform 0.2s, opacity 0.2s;
+	}
+
+	.barres {
+		position: relative;
+		background: none;
+	}
+
+	.barres::before,
+	.barres::after {
+		content: '';
+		position: absolute;
+		left: 0;
+	}
+
+	.barres::before {
+		top: -6px;
+	}
+
+	.barres::after {
+		top: 6px;
+	}
+
+	[aria-expanded='true'] .barres span {
+		opacity: 0;
+	}
+
+	[aria-expanded='true'] .barres::before {
+		transform: translateY(6px) rotate(45deg);
+	}
+
+	[aria-expanded='true'] .barres::after {
+		transform: translateY(-6px) rotate(-45deg);
+	}
+
+	/* Sur mobile : le menu se replie derrière le bouton et se déplie en liste, un lien par ligne */
+	@media (max-width: 47.99rem) {
+		.barre {
+			column-gap: 0.5rem;
+		}
+
+		/* Le logo prend la place restante ; le slogan peut passer sur deux lignes pour laisser le bouton à côté */
+		.marque {
+			flex: 1 1 0;
+			min-width: 0;
+			gap: 0.5rem;
+			font-size: 1.35rem;
+		}
+
+		.marque img {
+			flex: none;
+		}
+
+		.marque img {
+			width: 2.75rem;
+			height: 2.75rem;
+		}
+
+		.burger {
+			flex: none;
+			padding: 0.4rem 0.75rem;
+		}
+
+		.accroche {
+			font-size: 0.75rem;
+		}
+
+		.burger:not([hidden]) {
+			display: inline-flex;
+		}
+
+		.burger:not([hidden]) + nav {
+			display: none;
+		}
+
+		.burger[aria-expanded='true'] + nav {
+			display: flex;
+		}
+
+		nav {
+			flex-direction: column;
+			flex-basis: 100%;
+			gap: 0;
+			padding-bottom: 0.5rem;
+		}
+
+		nav a {
+			padding-block: 0.75rem;
+			border-bottom: 1px solid rgb(251 246 234 / 0.15);
+		}
+
+		nav a[aria-current='page'] {
+			border-bottom-color: rgb(251 246 234 / 0.15);
+		}
+
+		nav a[aria-current='page']::before {
+			content: '▸ ';
+		}
+
+		.reseaux-menu {
+			padding: 0.75rem 0 0;
+			border-left: none;
+		}
+
+		.reseaux-menu :global(svg) {
+			width: 1.75rem;
+			height: 1.75rem;
+		}
+	}
+
+	/* Très petits écrans : le mot « Menu » est masqué à l'écran (mais lu par les lecteurs d'écran) */
+	@media (max-width: 23rem) {
+		.burger {
+			justify-content: center;
+			width: 2.75rem;
+			height: 2.75rem;
+			padding: 0;
+		}
+
+		.libelle {
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+			clip-path: inset(50%);
+			white-space: nowrap;
+		}
 	}
 </style>
