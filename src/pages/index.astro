@@ -4,7 +4,6 @@ import Layout from '../layouts/Layout.astro';
 import logo from '../assets/logo.png';
 import Carrousel from '../components/Carrousel.astro';
 import Embleme from '../components/Embleme.astro';
-import Reseaux from '../components/Reseaux.astro';
 import { url } from '../lib/url';
 import { site } from '../lib/site';
 ---
@@ -73,12 +72,10 @@ import { site } from '../lib/site';
 			<h2>Prochaines aventures</h2>
 			<p>Le tableau des quêtes se remplit bientôt. En attendant, lustrez vos dés et préparez vos pinceaux&nbsp;!</p>
 			<p>
-				<strong>Toutes nos annonces passent par Facebook et Instagram</strong>&nbsp;: dates des soirées, tournois,
-				ateliers, nouveaux jeux… Abonnez-vous pour ne rater aucune aventure&nbsp;!
+				<strong>Toutes nos annonces passent par <a href={site.reseaux.facebook} target="_blank" rel="noopener">Facebook</a>{' '}
+				et <a href={site.reseaux.instagram} target="_blank" rel="noopener">Instagram</a></strong>&nbsp;: dates des soirées,
+				tournois, ateliers, nouveaux jeux… Abonnez-vous pour ne rater aucune aventure&nbsp;!
 			</p>
-			<div class="suivre">
-				<Reseaux />
-			</div>
 			<a href={url('evenements/')} class="lien">Tous les événements →</a>
 		</div>
 	</section>
@@ -133,10 +130,6 @@ import { site } from '../lib/site';
 
 	.lien {
 		font-weight: 800;
-	}
-
-	.suivre {
-		margin-block: 1.5rem;
 	}
 
 	.bandeau {

@@ -1,16 +1,15 @@
 ---
 // Liens vers nos réseaux sociaux (renseignés dans src/lib/site.ts).
 // Simples liens, sans widget ni bouton « J'aime » intégré : aucun traqueur sur notre site.
-// - variante "boutons" : gros boutons aux couleurs de chaque réseau, pour inviter à nous suivre
 // - variante "discret" : icône + nom, pour le pied de page
 // - variante "icones" : icônes seules, pour le menu (le nom reste lu par les lecteurs d'écran)
 import { site } from '../lib/site';
 
 interface Props {
-	variante?: 'boutons' | 'discret' | 'icones';
+	variante?: 'discret' | 'icones';
 }
 
-const { variante = 'boutons' } = Astro.props;
+const { variante = 'discret' } = Astro.props;
 
 const infos: Record<string, { nom: string; icone: string }> = {
 	facebook: {
@@ -75,40 +74,6 @@ const liens = Object.entries(site.reseaux)
 		stroke-width: 2;
 		stroke-linecap: round;
 		stroke-linejoin: round;
-	}
-
-	/* Gros boutons, dans le style des boutons du site mais aux couleurs de chaque réseau */
-	.boutons a {
-		font-family: var(--font-titre);
-		font-size: 1.05rem;
-		letter-spacing: 0.05em;
-		color: var(--blanc);
-		border: 2px solid var(--brun);
-		border-radius: 999px;
-		padding: 0.5em 1.3em 0.45em 1em;
-		box-shadow: 3px 3px 0 var(--brun);
-		transition: transform 0.1s, box-shadow 0.1s;
-	}
-
-	.boutons a:hover {
-		transform: translate(-1px, -1px);
-		box-shadow: 4px 4px 0 var(--brun);
-	}
-
-	.boutons span {
-		padding-top: 0.15em; /* la police des titres est un peu haute */
-	}
-
-	.boutons .facebook {
-		background: #1877f2;
-	}
-
-	.boutons .instagram {
-		background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-	}
-
-	.boutons .discord {
-		background: #5865f2;
 	}
 
 	/* Version discrète : hérite de la couleur du texte autour */
