@@ -192,7 +192,7 @@ const visiteurs = [
 
 	@media (min-width: 48rem) {
 		.acces {
-			grid-template-columns: minmax(16rem, 1fr) 2fr;
+			grid-template-columns: minmax(min-content, 1fr) 2fr;
 			grid-template-areas:
 				'coordonnees plan'
 				'visite adhesion';
@@ -212,6 +212,11 @@ const visiteurs = [
 
 		.adhesion {
 			grid-area: adhesion;
+		}
+
+		/* Titres des cartes sur une seule ligne : la première colonne s'élargit d'autant */
+		.acces h2 {
+			white-space: nowrap;
 		}
 
 		/* Le plan remplit toute la hauteur de sa ligne ; s'il doit être rogné, on garde le bas
@@ -282,11 +287,23 @@ const visiteurs = [
 		}
 	}
 
-	.acces h3 {
-		margin: 1.5rem 0 0.5rem;
+	/* Intertitres des cartes (« Horaires », « Venir », titres des tableaux) : même style partout */
+	.acces h3,
+	.acces caption {
+		font-family: var(--font-titre);
+		font-size: 1.35rem;
+		line-height: 1.15;
+		letter-spacing: 0.02em;
+		text-align: left;
+		margin: 0 0 0.5rem;
 	}
 
-	.acces h2 + h3 {
+	.acces h3 {
+		margin-top: 1.5rem;
+	}
+
+	/* Pas d'espace en trop juste sous le titre de la carte */
+	.acces summary + h3 {
 		margin-top: 0.5rem;
 	}
 
@@ -314,18 +331,11 @@ const visiteurs = [
 		margin-bottom: 0.25rem;
 	}
 
+	/* Même espacement au-dessus d'un tableau qu'au-dessus d'un intertitre */
 	table {
 		width: 100%;
 		border-collapse: collapse;
-		margin-bottom: 1.5rem;
-	}
-
-	caption {
-		text-align: left;
-		font-family: var(--font-titre);
-		font-size: 1.15rem;
-		letter-spacing: 0.02em;
-		margin-bottom: 0.25rem;
+		margin: 1.5rem 0;
 	}
 
 	.detail {
