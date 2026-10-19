@@ -58,8 +58,9 @@ const visiteurs = [
 
 
 		<div class="acces">
-			<section class="carte">
-				<h2 class="titre-embleme"><Embleme />{site.nom}</h2>
+			<section class="carte coordonnees">
+				<details class="repli" data-ouvert-mobile open>
+				<summary><h2 class="titre-embleme"><Embleme />{site.nom}</h2></summary>
 				<p>
 					{rue}<br />
 					{codePostal} {ville}<br />
@@ -71,7 +72,12 @@ const visiteurs = [
 				</p>
 				<p>Vous pouvez aussi nous écrire en message privé&nbsp;:</p>
 				<Reseaux variante="discret" />
+				</details>
+			</section>
 
+			<section class="carte visite">
+				<details class="repli" open>
+				<summary><h2 class="titre-embleme"><Embleme />Nous rendre visite</h2></summary>
 				<h3>Horaires</h3>
 				<p>
 					Pas d'horaires fixes&nbsp;: la taverne ouvre ses portes lors de nos événements. Les dates et horaires sont
@@ -98,9 +104,10 @@ const visiteurs = [
 						))
 					}
 				</ul>
+				</details>
 			</section>
-			<div class="colonne">
-				<a href={lienCarte} class="carte plan" target="_blank" rel="noopener">
+
+			<a href={lienCarte} class="carte plan" target="_blank" rel="noopener">
 					<Image
 						src={plan}
 						alt={`Plan d'accès : ${rue}, ${codePostal} ${ville}`}
@@ -110,7 +117,8 @@ const visiteurs = [
 				</a>
 
 			<section class="carte adhesion">
-				<h2 class="titre-embleme"><Embleme />Adhésion</h2>
+				<details class="repli" open>
+				<summary><h2 class="titre-embleme"><Embleme />Adhésion</h2></summary>
 				<p>
 					L'adhésion permet de soutenir l'association et de participer à toutes ses activités pendant un an.
 				</p>
@@ -144,25 +152,74 @@ const visiteurs = [
 					</tbody>
 				</table>
 				<p class="a-completer">[Le bouton d'adhésion HelloAsso sera ajouté ici.]</p>
+				</details>
 			</section>
-			</div>
 		</div>
+
+		<!-- Mobile : sections repliées, sauf celles marquées data-ouvert-mobile (les coordonnées) ; grand écran : toujours ouvertes (la grille garde ses hauteurs alignées).
+		     Script inline et synchrone, pour replier avant le premier affichage ; sans JS, tout reste ouvert. -->
+		<script is:inline>
+			(() => {
+				const grandEcran = matchMedia('(min-width: 48rem)');
+				const replis = document.querySelectorAll('.repli');
+				const appliquer = () => {
+					replis.forEach((repli) => {
+						repli.open = grandEcran.matches || 'ouvertMobile' in repli.dataset;
+						repli.querySelector('summary').tabIndex = grandEcran.matches ? -1 : 0;
+					});
+				};
+				replis.forEach((repli) =>
+					repli.querySelector('summary').addEventListener('click', (e) => {
+						if (grandEcran.matches) e.preventDefault();
+					}),
+				);
+				appliquer();
+				grandEcran.addEventListener('change', appliquer);
+			})();
+		</script>
 	</div>
 </Layout>
 
 <style>
-	/* Adresse à côté du plan sur grand écran, au-dessus sur mobile */
-	/* Infos à gauche ; plan et adhésion empilés à droite. Tout l'un sous l'autre sur mobile */
+	/* Grand écran : grille 2 × 2, coordonnées | plan, puis visite | adhésion.
+	   Les encadrés d'une même ligne ont la même hauteur, donc ils sont alignés en haut et en bas.
+	   Mobile : tout l'un sous l'autre, dans l'ordre du code (coordonnées, visite, plan, adhésion). */
 	.acces {
 		display: grid;
 		gap: 1.5rem;
-		align-items: start;
 		margin-bottom: 3rem;
 	}
 
 	@media (min-width: 48rem) {
 		.acces {
 			grid-template-columns: minmax(16rem, 1fr) 2fr;
+			grid-template-areas:
+				'coordonnees plan'
+				'visite adhesion';
+		}
+
+		.coordonnees {
+			grid-area: coordonnees;
+		}
+
+		.plan {
+			grid-area: plan;
+		}
+
+		.visite {
+			grid-area: visite;
+		}
+
+		.adhesion {
+			grid-area: adhesion;
+		}
+
+		/* Le plan remplit toute la hauteur de sa ligne ; s'il doit être rogné, on garde le bas
+		   (logo et mentions Google obligatoires) */
+		.acces .plan img {
+			height: 100%;
+			object-fit: cover;
+			object-position: bottom;
 		}
 	}
 
@@ -180,8 +237,57 @@ const visiteurs = [
 		height: auto;
 	}
 
+	/* Sections repliables (mobile) : le titre de la carte sert de bouton */
+	.repli > summary {
+		list-style: none;
+		position: relative;
+	}
+
+	.repli > summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.repli:not([open]) h2 {
+		margin-bottom: 0;
+	}
+
+	@media (max-width: 47.99rem) {
+		.repli > summary {
+			cursor: pointer;
+			padding-inline: 2rem;
+		}
+
+		/* Chevron à droite du titre, pointe vers le bas quand c'est replié */
+		.repli > summary::after {
+			content: '';
+			position: absolute;
+			right: 0.25rem;
+			top: 50%;
+			width: 0.7rem;
+			height: 0.7rem;
+			border-right: 3px solid var(--rose);
+			border-bottom: 3px solid var(--rose);
+			transform: translateY(-75%) rotate(45deg);
+			transition: transform 0.2s;
+		}
+
+		.repli[open] > summary::after {
+			transform: translateY(-25%) rotate(-135deg);
+		}
+
+		.repli > summary:focus-visible {
+			outline: 3px solid var(--rose);
+			outline-offset: 0.25rem;
+			border-radius: 0.5rem;
+		}
+	}
+
 	.acces h3 {
 		margin: 1.5rem 0 0.5rem;
+	}
+
+	.acces h2 + h3 {
+		margin-top: 0.5rem;
 	}
 
 	.acces p {
@@ -206,11 +312,6 @@ const visiteurs = [
 
 	.sous-liste li {
 		margin-bottom: 0.25rem;
-	}
-
-	.colonne {
-		display: grid;
-		gap: 1.5rem;
 	}
 
 	table {
