@@ -65,6 +65,16 @@ const marque = (texte?: string) => (aCompleter(texte) ? 'a-completer' : undefine
 		<meta name="robots" content="noindex" />
 		<link rel="icon" type="image/png" href={url('favicon.png')} />
 		<title>Affiche · {ligne2} · {jourMois} · {site.nom}</title>
+		<script is:inline>
+			// Aperçu : affichée dans une iframe (carrousel de la page Événements), l'affiche seule remplit le cadre
+			if (window.self !== window.top) {
+				const racine = document.documentElement;
+				racine.classList.add('apercu');
+				const ajuster = () => racine.style.setProperty('--echelle', String(innerWidth / (210 * 96 / 25.4)));
+				ajuster();
+				addEventListener('resize', ajuster);
+			}
+		</script>
 	</head>
 	<body>
 		<p class="outils">
@@ -215,6 +225,25 @@ const marque = (texte?: string) => (aCompleter(texte) ? 'a-completer' : undefine
 		.feuille {
 			zoom: calc(100vw / 220mm);
 		}
+	}
+
+	/* Aperçu dans le carrousel des événements : ni barre d'outils, ni marges, l'affiche à la largeur du cadre */
+	:global(html.apercu) {
+		overflow: hidden;
+		background: none;
+	}
+
+	:global(.apercu) body {
+		padding: 0;
+	}
+
+	:global(.apercu) .outils {
+		display: none;
+	}
+
+	:global(.apercu) .feuille {
+		zoom: var(--echelle);
+		box-shadow: none;
 	}
 
 	@media print {

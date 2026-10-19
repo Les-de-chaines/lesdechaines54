@@ -1,5 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
+import CarrouselAffiches from '../../components/CarrouselAffiches.astro';
 import { site } from '../../lib/site';
 ---
 
@@ -8,8 +9,9 @@ import { site } from '../../lib/site';
 		<h1>Événements</h1>
 		<p>Soirées jeux, tournois, ateliers peinture… Retrouvez ici tous nos prochains rendez-vous.</p>
 
+		<CarrouselAffiches />
+
 		<div class="carte">
-			<p>Aucun événement pour le moment. Revenez bientôt&nbsp;!</p>
 			<p>
 				Pour être prévenu dès qu'une date tombe, suivez-nous sur{' '}
 				<a href={site.reseaux.facebook} target="_blank" rel="noopener">Facebook</a>{' '}

@@ -1,0 +1,304 @@
+---
+import fs from 'node:fs';
+import { url } from '../lib/url';
+
+// Toutes les affiches de src/pages/affiches/ (sauf _modele.astro), rangées par date.
+// La date vient du nom de fichier ("2026-10-31-atelier-enfants.astro" → 31 octobre),
+// le nom du titre écrit dans l'affiche (à défaut, du nom de fichier : « Atelier enfants »).
+// Chaque vignette est la vraie page de l'affiche, réduite (voir le mode « aperçu » dans Affiche.astro).
+const affiches = fs
+	.readdirSync('src/pages/affiches')
+	.filter((fichier) => fichier.endsWith('.astro'))
+	.map((fichier) => fichier.replace(/\.astro$/, ''))
+	.map((nom) => nom.match(/^(\d{4}-\d{2}-\d{2})-(.+)$/))
+	.filter((m): m is RegExpMatchArray => !!m)
+	.map(([nom, date, slug]) => {
+		// Midi à Paris, pour ne jamais basculer sur la veille ou le lendemain
+		const jour = new Intl.DateTimeFormat('fr-FR', {
+			timeZone: 'Europe/Paris',
+			weekday: 'long',
+			day: 'numeric',
+			month: 'long',
+			year: 'numeric',
+		}).format(new Date(`${date}T12:00:00+01:00`));
+		const source = fs.readFileSync(`src/pages/affiches/${nom}.astro`, 'utf-8');
+		const titre =
+			source
+				.match(/^\s*titre:\s*(['"])(.*)\1,?\s*$/m)?.[2]
+				.replace(/\\n/g, ' ')
+				.replace(/\\(['"])/g, '$1') ?? slug.replace(/[-_]+/g, ' ');
+		return {
+			date,
+			lien: url(`affiches/${nom}/`),
+			titre: titre.charAt(0).toUpperCase() + titre.slice(1),
+			jour: jour.charAt(0).toUpperCase() + jour.slice(1),
+		};
+	})
+	.sort((a, b) => a.date.localeCompare(b.date));
+---
+
+{
+	affiches.length > 0 && (
+		<section class="carrousel-affiches" aria-roledescription="carrousel" aria-label="Affiches de nos événements">
+			<ul class="piste" tabindex="0">
+				{affiches.map(({ date, lien, titre, jour }) => (
+					<li class="affiche" data-date={date}>
+						<div class="vignette">
+							<iframe src={lien} loading="lazy" tabindex="-1" aria-hidden="true" title="" />
+							<a href={lien} class="ouvrir" aria-label={`${titre}, ${jour} : voir l'affiche`} />
+							<span class="termine">Terminé</span>
+						</div>
+						<p class="legende">
+							<strong>{titre}</strong>
+							<span>{jour}</span>
+						</p>
+					</li>
+				))}
+			</ul>
+
+			<button class="fleche precedent" type="button" aria-label="Affiche précédente" hidden>‹</button>
+			<button class="fleche suivant" type="button" aria-label="Affiche suivante" hidden>›</button>
+			<div class="points" hidden>
+				{affiches.map(({ titre }, i) => (
+					<button type="button" aria-label={`Aller à l'affiche ${i + 1} : ${titre}`} data-index={i} />
+				))}
+			</div>
+		</section>
+	)
+}
+
+<script>
+	document.querySelectorAll<HTMLElement>('.carrousel-affiches').forEach((carrousel) => {
+		const piste = carrousel.querySelector<HTMLElement>('.piste')!;
+		const affiches = [...piste.children] as HTMLElement[];
+		const precedent = carrousel.querySelector<HTMLButtonElement>('.precedent')!;
+		const suivant = carrousel.querySelector<HTMLButtonElement>('.suivant')!;
+		const zonePoints = carrousel.querySelector<HTMLElement>('.points')!;
+		const points = [...zonePoints.querySelectorAll<HTMLButtonElement>('button')];
+
+		// Les événements passés sont marqués « Terminé » ; le carrousel s'ouvre sur le prochain à venir
+		const aujourdhui = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris' }).format(new Date());
+		affiches.forEach((a) => a.classList.toggle('passe', a.dataset.date! < aujourdhui));
+		const prochaine = affiches.find((a) => !a.classList.contains('passe')) ?? affiches.at(-1)!;
+		piste.scrollLeft = prochaine.offsetLeft - piste.offsetLeft;
+
+		// Un pas = la largeur d'une affiche + l'espace entre deux
+		const pas = () => (affiches[1] ? affiches[1].offsetLeft - affiches[0].offsetLeft : piste.clientWidth);
+		precedent.addEventListener('click', () => piste.scrollBy({ left: -pas(), behavior: 'smooth' }));
+		suivant.addEventListener('click', () => piste.scrollBy({ left: pas(), behavior: 'smooth' }));
+
+		const allerA = (i: number) =>
+			piste.scrollTo({ left: affiches[i].offsetLeft - affiches[0].offsetLeft, behavior: 'smooth' });
+		points.forEach((p) => p.addEventListener('click', () => allerA(Number(p.dataset.index))));
+
+		// Flèches et points visibles seulement s'il y a de quoi défiler ; le point actif = la première affiche visible
+		const maj = () => {
+			const defile = piste.scrollWidth > piste.clientWidth + 1;
+			precedent.hidden = !defile || piste.scrollLeft <= 1;
+			suivant.hidden = !defile || piste.scrollLeft + piste.clientWidth >= piste.scrollWidth - 1;
+			zonePoints.hidden = !defile;
+			const actuelle = Math.round(piste.scrollLeft / pas());
+			points.forEach((p, j) => p.setAttribute('aria-current', String(j === actuelle)));
+		};
+		piste.addEventListener('scroll', maj, { passive: true });
+		window.addEventListener('resize', maj);
+		maj();
+	});
+</script>
+
+<style>
+	.carrousel-affiches {
+		position: relative;
+		margin-block: 1.5rem;
+	}
+
+	/* 1 affiche visible sur mobile (la suivante dépasse un peu), 2 sur tablette, 3 sur grand écran */
+	.piste {
+		--visibles: 1.2;
+		--espace: 1.25rem;
+		display: flex;
+		gap: var(--espace);
+		overflow-x: auto;
+		scroll-snap-type: x mandatory;
+		scrollbar-width: none;
+		list-style: none;
+		margin: 0;
+		/* De la place pour l'ombre verte des vignettes */
+		padding: 0 6px 8px 0;
+	}
+
+	@media (min-width: 40rem) {
+		.piste {
+			--visibles: 2;
+		}
+	}
+
+	@media (min-width: 64rem) {
+		.piste {
+			--visibles: 3;
+		}
+	}
+
+	.piste::-webkit-scrollbar {
+		display: none;
+	}
+
+	.affiche {
+		flex: 0 0 calc((100% - (var(--visibles) - 1) * var(--espace)) / var(--visibles));
+		scroll-snap-align: start;
+	}
+
+	/* Moins d'affiches que de places : elles sont centrées (marges auto, sans gêner le défilement sinon) */
+	.affiche:first-child {
+		margin-left: auto;
+	}
+
+	.affiche:last-child {
+		margin-right: auto;
+	}
+
+	/* Vignette au format A4 : l'affiche se met elle-même à l'échelle de l'iframe */
+	.vignette {
+		position: relative;
+		aspect-ratio: 210 / 297;
+		overflow: hidden;
+		border: 3px solid var(--brun);
+		border-radius: var(--rayon);
+		box-shadow: 5px 5px 0 var(--vert);
+		background: var(--brun);
+	}
+
+	.vignette iframe {
+		display: block;
+		width: 100%;
+		height: 100%;
+		border: 0;
+		pointer-events: none;
+	}
+
+	/* Le lien recouvre toute la vignette */
+	.ouvrir {
+		position: absolute;
+		inset: 0;
+		border-radius: inherit;
+	}
+
+	.ouvrir:hover,
+	.ouvrir:focus-visible {
+		background: rgb(255 255 255 / 0.08);
+	}
+
+	.termine {
+		display: none;
+		position: absolute;
+		top: 0.75rem;
+		left: 0.75rem;
+		padding: 0.2rem 0.6rem;
+		font-size: 0.8rem;
+		font-weight: 700;
+		color: var(--blanc);
+		background: var(--brun);
+		border-radius: 999px;
+		pointer-events: none;
+	}
+
+	.passe .termine {
+		display: block;
+	}
+
+	.passe .vignette iframe {
+		opacity: 0.55;
+	}
+
+	.legende {
+		display: flex;
+		flex-direction: column;
+		margin: 0.75rem 0 0;
+		text-align: center;
+	}
+
+	.legende span {
+		font-size: 0.9rem;
+	}
+
+	/* Mêmes flèches que le carrousel de l'accueil */
+	.fleche {
+		position: absolute;
+		top: 40%;
+		translate: 0 -50%;
+		width: 2.75rem;
+		height: 2.75rem;
+		display: grid;
+		place-items: center;
+		font-size: 2rem;
+		line-height: 1;
+		padding-bottom: 0.2rem;
+		color: var(--brun);
+		background: var(--creme);
+		border: 3px solid var(--brun);
+		border-radius: 50%;
+		box-shadow: 2px 2px 0 var(--brun);
+		cursor: pointer;
+	}
+
+	.fleche[hidden] {
+		display: none;
+	}
+
+	.fleche:hover {
+		color: var(--blanc);
+		background: var(--rose);
+	}
+
+	.precedent {
+		left: -0.75rem;
+	}
+
+	.suivant {
+		right: -0.75rem;
+	}
+
+	@media (max-width: 47.99rem) {
+		.fleche {
+			width: 1.9rem;
+			height: 1.9rem;
+			font-size: 1.4rem;
+			padding-bottom: 0.15rem;
+			border-width: 2px;
+		}
+
+		.precedent {
+			left: -0.5rem;
+		}
+
+		.suivant {
+			right: -0.5rem;
+		}
+	}
+
+	/* Mêmes points que le carrousel de l'accueil */
+	.points {
+		display: flex;
+		justify-content: center;
+		gap: 0.6rem;
+		margin-top: 1rem;
+	}
+
+	.points[hidden] {
+		display: none;
+	}
+
+	.points button {
+		width: 0.85rem;
+		height: 0.85rem;
+		padding: 0;
+		border: 2px solid var(--brun);
+		border-radius: 50%;
+		background: var(--blanc);
+		cursor: pointer;
+	}
+
+	.points button[aria-current='true'] {
+		background: var(--rose);
+	}
+</style>
