@@ -38,7 +38,7 @@ const bureau = [
 	{
 		embleme: '💀',
 		prenom: 'Christophe',
-		titre: 'Seigneur nécron de la tchatche',
+		titre: 'Nécron à manette',
 		texte:
 			"Némésis du Pinceau de l'Empereur, il affronte ses adversaires avec ses Nécrons\u00a0: immortels, mais jamais aidés par les dés. Gamer entre deux batailles, il a une arme secrète\u00a0: sa tchatche. Il vous convaincra de rejouer une partie avant que vous ayez fini de ranger.",
 	},
@@ -50,7 +50,7 @@ const bureau = [
 		<h1>Qui <span class="insecable">sommes-nous&nbsp;?</span></h1>
 
 		<div class="grille-page">
-			<section class="carte">
+			<section class="carte guilde">
 				<h2 class="titre-embleme"><Embleme />La guilde</h2>
 				<ul class="quetes">
 					<li><strong>Quête de départ&nbsp;:</strong> trouver un espace sans enfants pour se retrouver et jouer.</li>
@@ -58,9 +58,28 @@ const bureau = [
 					<li><strong>Résultat&nbsp;:</strong> impossible.</li>
 					<li class="nouvelle-quete"><strong>Nouvelle quête&nbsp;:</strong> ouvrir un café jeux&nbsp;!</li>
 				</ul>
+				<h3>Les membres fondateurs</h3>
+				<ul class="membres">
+					{
+						bureau.map(({ embleme, croise, prenom, titre, texte }) => (
+							<li>
+								<p class="embleme-membre" aria-hidden="true">
+									{croise ? (
+										<span class="croise"><span>{embleme}</span><span>{embleme}</span></span>
+									) : (
+										embleme
+									)}
+								</p>
+								<p class="nom"><strong>{prenom}</strong></p>
+								<p class="titre-membre">{titre}</p>
+								<p>{texte}</p>
+							</li>
+						))
+					}
+				</ul>
 			</section>
 
-			<section class="carte">
+			<section class="carte colonne">
 				<h2 class="titre-embleme"><Embleme />Notre objet</h2>
 				<p>Selon nos statuts, l'association a pour but de&nbsp;:</p>
 				<ul class="a-completer">
@@ -68,40 +87,6 @@ const bureau = [
 					<li>[créer du lien social autour du jeu, pour tous les âges]</li>
 					<li>[faire vivre un café associatif, lieu de rencontre et de convivialité]</li>
 				</ul>
-			</section>
-
-			<section class="carte">
-				<h2 class="titre-embleme"><Embleme />Notre fonctionnement</h2>
-				<h3>Une association loi 1901</h3>
-				<p>
-					{site.nom} est une association à but non lucratif, animée par des bénévoles. Chaque euro récolté sert à
-					faire vivre la taverne&nbsp;: jeux, matériel, événements.
-				</p>
-				<h3>Le bureau</h3>
-				<ul class="bureau">
-					{
-						bureau.map(({ embleme, croise, prenom, titre, texte }) => (
-							<li>
-								<p class="membre">
-									{croise ? (
-										<span class="croise" aria-hidden="true"><span>{embleme}</span><span>{embleme}</span></span>
-									) : (
-										<span aria-hidden="true">{embleme}</span>
-									)} <strong>{prenom}</strong>, {titre}
-								</p>
-								<p>{texte}</p>
-							</li>
-						))
-					}
-				</ul>
-				<h3>Les adhérents</h3>
-				<p>
-					L'adhésion annuelle donne accès à toutes nos activités et permet de voter à l'assemblée générale. <a href={url('infos/')}>Voir les tarifs →</a>
-				</p>
-				<h3>Les bénévoles</h3>
-				<p>
-					Envie de tenir le comptoir, d'animer une partie ou d'organiser un tournoi&nbsp;? Toute aide est la bienvenue&nbsp;: <a href={`mailto:${site.email}`}>écrivez-nous</a>.
-				</p>
 				<p class="documents">
 					{
 						documents.map(({ titre, fichier, disponible }, i) => (
@@ -117,16 +102,32 @@ const bureau = [
 					}
 				</p>
 			</section>
+
+			<section class="carte">
+				<h2 class="titre-embleme"><Embleme />Notre fonctionnement</h2>
+				<h3>Une association loi 1901</h3>
+				<p>
+					{site.nom} est une association à but non lucratif, animée par des bénévoles. Chaque euro récolté sert à
+					faire vivre la taverne&nbsp;: jeux, matériel, événements.
+				</p>
+				<h3>Les adhérents</h3>
+				<p>
+					L'adhésion annuelle donne accès à toutes nos activités et permet de voter à l'assemblée générale. <a href={url('infos/')}>Voir les tarifs →</a>
+				</p>
+				<h3>Les bénévoles</h3>
+				<p>
+					Envie de tenir le comptoir, d'animer une partie ou d'organiser un tournoi&nbsp;? Toute aide est la bienvenue&nbsp;: <a href={`mailto:${site.email}`}>écrivez-nous</a>.
+				</p>
+			</section>
 		</div>
 	</div>
 </Layout>
 
 <style>
-	/* La guilde et Notre objet côte à côte, Notre fonctionnement en dessous sur toute la largeur */
+	/* La guilde (histoire + membres) sur toute la largeur, puis Notre objet et Notre fonctionnement côte à côte, à la même hauteur */
 	.grille-page {
 		display: grid;
 		gap: 1.5rem;
-		align-items: start;
 	}
 
 	@media (min-width: 48rem) {
@@ -134,7 +135,7 @@ const bureau = [
 			grid-template-columns: 1fr 1fr;
 		}
 
-		.grille-page > :last-child {
+		.guilde {
 			grid-column: 1 / -1;
 		}
 	}
@@ -167,27 +168,54 @@ const bureau = [
 		font-size: 1.1rem;
 	}
 
-	/* Le bureau : une fiche par membre, sur deux colonnes en grand écran */
-	.bureau {
-		list-style: none;
-		padding: 0;
-		margin: 0;
-		display: grid;
-		gap: 1rem 2rem;
+	/* Les membres : une fiche chacun, 1 colonne sur mobile, 2 sur tablette, 4 sur grand écran */
+	.guilde h3 {
+		margin-top: 1.75rem;
+		padding-top: 1.25rem;
+		border-top: 1px solid rgb(62 36 22 / 0.15);
 	}
 
-	@media (min-width: 48rem) {
-		.bureau {
+	.membres {
+		list-style: none;
+		padding: 0;
+		margin: 1rem 0 0;
+		display: grid;
+		gap: 1.5rem;
+	}
+
+	@media (min-width: 40rem) {
+		.membres {
 			grid-template-columns: 1fr 1fr;
 		}
 	}
 
-	.bureau p {
+	@media (min-width: 64rem) {
+		.membres {
+			grid-template-columns: repeat(4, 1fr);
+		}
+	}
+
+	.membres li {
+		text-align: center;
+	}
+
+	.membres p {
 		margin: 0;
 	}
 
-	.bureau .membre {
-		margin-bottom: 0.25rem;
+	.embleme-membre {
+		font-size: 2.25rem;
+		line-height: 1;
+		margin-bottom: 0.5rem !important;
+	}
+
+	.titre-membre {
+		font-style: italic;
+		margin-bottom: 0.6rem !important;
+	}
+
+	.membres li > p:last-child {
+		text-align: left;
 	}
 
 	/* Emoji doublé et retourné pour former un X */
@@ -202,12 +230,21 @@ const bureau = [
 		transform: scaleX(-1);
 	}
 
-	/* Documents officiels : une petite ligne en fin de section */
+	/* Notre objet : les documents officiels calés en bas de la carte */
+	.colonne {
+		display: flex;
+		flex-direction: column;
+	}
+
 	.documents {
-		margin: 1.75rem 0 0;
+		margin: auto 0 0;
 		padding-top: 1rem;
 		border-top: 1px solid rgb(62 36 22 / 0.15);
 		font-size: 0.85rem;
+	}
+
+	.colonne > ul {
+		margin-bottom: 1.75rem;
 	}
 
 	.documents span {
