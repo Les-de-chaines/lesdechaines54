@@ -1,0 +1,31 @@
+---
+// Modèle à copier pour une nouvelle affiche (le « _ » au début du nom l'empêche d'être publié).
+// 1. Copier ce fichier dans src/pages/affiches/, nommé AAAA-MM-JJ-nom-court.astro : ce sera l'adresse de l'affiche.
+// 2. Remplacer les valeurs entre crochets (elles restent surlignées en jaune tant qu'elles ne sont pas remplies).
+// 3. Déposer les images dans src/assets/affiches/ et renseigner `fichier` pour chacune.
+import Affiche from '../../components/Affiche.astro';
+import type { Evenement } from '../../lib/evenements';
+
+const evenement: Evenement = {
+	categorie: '[Type d’événement]',
+	titre: '[Petite ligne]\n[Grand titre]',
+	accroche: '[Une phrase qui donne envie de venir]',
+	date: '2026-01-01',
+	debut: '[14h]',
+	fin: '[18h]',
+	public: '[Public visé]',
+	visuels: [
+		{ legende: '[Jeu 1]', description: '[Image du jeu 1]' },
+		{ description: "[Image d'ambiance]" },
+		{ legende: '[Jeu 2]', description: '[Image du jeu 2]' },
+	],
+	tarifs: [
+		{ formule: 'Adhérent', prix: '[X €]' },
+		{ formule: 'Non adhérent', prix: '[X €]' },
+	],
+	inclus: '[Ce qui est compris]',
+	note: '[Places limitées, réservation conseillée]',
+};
+---
+
+<Affiche evenement={evenement} />

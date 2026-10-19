@@ -1,0 +1,85 @@
+---
+// Affiche de l'atelier enfants d'Halloween, le 31 octobre 2026.
+// Les retouches propres à cette affiche se font ici, sans toucher au modèle (src/components/Affiche.astro).
+import Affiche from '../../components/Affiche.astro';
+import type { Evenement } from '../../lib/evenements';
+
+const evenement: Evenement = {
+	categorie: 'Spécial Halloween',
+	titre: "Atelier\nP'tits Dé-chaînés",
+	accroche: 'Petits monstres, à vos dés : une matinée de jeux qui fait (un tout petit peu) peur !',
+	date: '2026-10-31',
+	debut: '10h',
+	fin: '12h',
+	public: 'De 5 à 9 ans',
+	visuels: [
+		{
+			legende: 'Mysterium Kids',
+			description: 'Le jeu Mysterium Kids : sa boîte, le plateau du manoir hanté et le tambourin',
+			fichier: 'mysterium-kids.jpg',
+		},
+		{
+			description: 'Le mot Halloween entouré de chats noirs, d’une petite sorcière et de citrouilles',
+			fichier: 'halloween-ambiance.jpg',
+		},
+		{
+			legende: 'La Colline aux Feux Follets',
+			description: 'Le jeu La Colline aux Feux Follets : sa boîte et le plateau avec les apprentis et les sorcières',
+			fichier: 'colline-aux-feux-follets.jpg',
+		},
+	],
+	tarifs: [{ formule: 'Tarif découverte', prix: '6 €' }],
+	inclus: 'Une boisson et un cookie compris',
+	note: 'Places limitées, réservation conseillée',
+};
+---
+
+<Affiche evenement={evenement} class="halloween">
+	<!-- Chauve-souris crème au-dessus des images -->
+	<svg slot="decor" class="chauve-souris" viewBox="0 0 100 42" aria-hidden="true">
+		<path
+			d="M50 12 C44 12 40 8 30 6 C20 4 10 6 2 12 C8 14 12 18 14 24 C18 20 24 20 28 26 C32 22 38 22 42 28 C44 32 47 36 50 40 C53 36 56 32 58 28 C62 22 68 22 72 26 C76 20 82 20 86 24 C88 18 92 14 98 12 C90 6 80 4 70 6 C60 8 56 12 50 12 Z"
+		></path>
+		<path d="M44 15 L43 3 L48 9 L52 9 L57 3 L56 15 C56 22 44 22 44 15 Z"></path>
+		<circle class="oeil" cx="47.6" cy="14" r="1.3"></circle>
+		<circle class="oeil" cx="52.4" cy="14" r="1.3"></circle>
+	</svg>
+</Affiche>
+
+<style>
+	/* Retouches propres à cette affiche : préfixer par :global(.halloween ...) */
+
+	/* Orange d'Halloween à la place du rose (pastille, heure, jour de la semaine) ; le logo, une image, ne change pas */
+	:global(.halloween) {
+		--rose: #e8740c;
+		--rose-fonce: #c2570a;
+	}
+
+	/* L'image d'ambiance est en paysage (3:2) : son cadre suit, pour ne pas couper le mot « Halloween » */
+	:global(.halloween .visuels li:nth-child(2) .cadre) {
+		aspect-ratio: 3 / 2;
+	}
+
+	/* Polaroïds couleur crème (comme le logo), avec un liseré pointillé marron au milieu de leur bord :
+	   le bord fait 2,5 mm, le trait de 0,4 mm est donc centré à 1,25 mm de l'extérieur */
+	/* « .feuille.halloween … li figure » : plus précis que la règle du modèle, sinon son fond blanc l'emporte */
+	:global(.feuille.halloween .visuels li figure) {
+		background: var(--creme);
+		outline: 0.4mm dashed var(--brun);
+		outline-offset: -1.45mm;
+	}
+
+	/* Chauve-souris : entre l'en-tête et le premier polaroïd, centrée sur la colonne d'images */
+	.chauve-souris {
+		position: absolute;
+		top: 52mm;
+		right: 22mm;
+		width: 34mm;
+		fill: var(--creme);
+		transform: rotate(-8deg);
+	}
+
+	.chauve-souris .oeil {
+		fill: var(--brun);
+	}
+</style>
