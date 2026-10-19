@@ -11,6 +11,38 @@ const documents = [
 	{ titre: 'Statuts', fichier: 'statuts.pdf' },
 	{ titre: 'Règlement intérieur', fichier: 'reglement-interieur.pdf' },
 ].map((doc) => ({ ...doc, disponible: fs.existsSync(`public/documents/${doc.fichier}`) }));
+
+const bureau = [
+	{
+		embleme: '🍪',
+		prenom: 'Cindy',
+		titre: 'Fée des cookies',
+		texte:
+			"Point faible\u00a0: choisir. Le jeu, le personnage, et même le cookie, puisqu'elle en apporte trois fournées pour trouver la meilleure recette. Point fort\u00a0: un sac sans fond, où elle range les projets des autres en plus des siens. Elle apprend tout, partout, tout le temps… sauf les règles.",
+	},
+	{
+		embleme: '🧚',
+		prenom: 'Perrine',
+		titre: 'Fée des crêpes',
+		texte:
+			"Quête principale\u00a0: finir un projet. Quêtes secondaires\u00a0: les 47 autres déjà commencés. Une tête pleine d'idées, des projets plein les bras et des armoires de jeux qui rêvent de prendre l'air. Elle dit oui aux défis les plus fous et aux crêpes à toute heure.",
+	},
+	{
+		embleme: '🖌️',
+		croise: true, // deux pinceaux croisés : l'emoji est doublé en miroir
+		prenom: 'Nicolas',
+		titre: "Pinceau de l'Empereur",
+		texte:
+			"Pinceau dans une main, liste d'armée dans l'autre, il mène ses troupes à la bataille contre ses potes jusqu'à pas d'heure, entre deux matchs de Blood Bowl. Le trésor de la guilde est entre de bonnes mains\u00a0: il compte aussi bien ses pièces d'or que ses points d'armée.",
+	},
+	{
+		embleme: '💀',
+		prenom: 'Christophe',
+		titre: 'Seigneur nécron de la tchatche',
+		texte:
+			"Némésis du Pinceau de l'Empereur, il affronte ses adversaires avec ses Nécrons\u00a0: immortels, mais jamais aidés par les dés. Gamer entre deux batailles, il a une arme secrète\u00a0: sa tchatche. Il vous convaincra de rejouer une partie avant que vous ayez fini de ranger.",
+	},
+];
 ---
 
 <Layout titre="Qui sommes-nous" description={`Présentation de l'association ${site.nom} : son objet, son fonctionnement, ses statuts.`}>
@@ -20,10 +52,12 @@ const documents = [
 		<div class="grille-page">
 			<section class="carte">
 				<h2 class="titre-embleme"><Embleme />La guilde</h2>
-				<p class="a-completer">
-					[Votre histoire : comment l'association est née, qui sont les membres fondateurs, ce qui vous a donné envie de
-					créer un lieu de jeu à {site.adresse.ville}…]
-				</p>
+				<ul class="quetes">
+					<li><strong>Quête de départ&nbsp;:</strong> trouver un espace sans enfants pour se retrouver et jouer.</li>
+					<li><strong>Quête secondaire&nbsp;:</strong> trouver de la place pour ranger les nouveaux jeux.</li>
+					<li><strong>Résultat&nbsp;:</strong> impossible.</li>
+					<li class="nouvelle-quete"><strong>Nouvelle quête&nbsp;:</strong> ouvrir un café jeux&nbsp;!</li>
+				</ul>
 			</section>
 
 			<section class="carte">
@@ -44,10 +78,21 @@ const documents = [
 					faire vivre la taverne&nbsp;: jeux, matériel, événements.
 				</p>
 				<h3>Le bureau</h3>
-				<ul class="liste">
-					<li>Présidente&nbsp;: {site.presidente}</li>
-					<li class="a-completer">[Trésorier·e : Prénom NOM]</li>
-					<li class="a-completer">[Secrétaire : Prénom NOM]</li>
+				<ul class="bureau">
+					{
+						bureau.map(({ embleme, croise, prenom, titre, texte }) => (
+							<li>
+								<p class="membre">
+									{croise ? (
+										<span class="croise" aria-hidden="true"><span>{embleme}</span><span>{embleme}</span></span>
+									) : (
+										<span aria-hidden="true">{embleme}</span>
+									)} <strong>{prenom}</strong>, {titre}
+								</p>
+								<p>{texte}</p>
+							</li>
+						))
+					}
 				</ul>
 				<h3>Les adhérents</h3>
 				<p>
@@ -102,9 +147,59 @@ const documents = [
 		margin: 1.25rem 0 0.4rem;
 	}
 
-	.liste,
 	ul.a-completer {
 		padding-left: 1.2rem;
+	}
+
+	/* La quête fondatrice, façon journal de quêtes */
+	.quetes {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+
+	.quetes li + li {
+		margin-top: 0.5rem;
+	}
+
+	.nouvelle-quete {
+		margin-top: 1rem !important;
+		font-size: 1.1rem;
+	}
+
+	/* Le bureau : une fiche par membre, sur deux colonnes en grand écran */
+	.bureau {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		display: grid;
+		gap: 1rem 2rem;
+	}
+
+	@media (min-width: 48rem) {
+		.bureau {
+			grid-template-columns: 1fr 1fr;
+		}
+	}
+
+	.bureau p {
+		margin: 0;
+	}
+
+	.bureau .membre {
+		margin-bottom: 0.25rem;
+	}
+
+	/* Emoji doublé et retourné pour former un X */
+	.croise {
+		position: relative;
+		display: inline-block;
+	}
+
+	.croise > span + span {
+		position: absolute;
+		inset: 0;
+		transform: scaleX(-1);
 	}
 
 	/* Documents officiels : une petite ligne en fin de section */
