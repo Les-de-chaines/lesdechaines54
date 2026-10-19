@@ -14,8 +14,13 @@ const lienCarte = `https://www.google.com/maps/search/?api=1&query=${adresse}`;
 // Moyens d'accès : `aVerifier` surligne en jaune les infos à confirmer avant publication
 const acces = [
 	{ mode: 'En voiture', texte: 'A31, sortie 24 « Custines »' },
-	{ mode: 'En bus', texte: 'depuis Nancy, ligne SUB 10, arrêt « Parc Eiffel », puis 15 min à pied' },
-	{ mode: 'En bus local', texte: 'Le Sit ligne 34, arrêt « René II », à 100 m (sur réservation en journée)' },
+	{
+		mode: 'En bus',
+		sousListe: [
+			'Depuis Nancy, ligne SUB 10, arrêt « Parc Eiffel », puis 15 min à pied',
+			'Le Sit ligne 34, arrêt « René II », à 100 m (sur réservation en journée)',
+		],
+	},
 	{ mode: 'En train', texte: 'gare de Pompey, à 2 km, puis VéloMoove ou ligne 34' },
 	{
 		mode: 'À vélo',
@@ -24,11 +29,26 @@ const acces = [
 	},
 ];
 
-// Tarifs à compléter
-const tarifs = [
-	{ formule: 'Adhésion individuelle', prix: '[XX €] / an' },
-	{ formule: 'Adhésion famille', prix: '[XX €] / an' },
-	{ formule: 'Tarif réduit (étudiants, demandeurs d\'emploi)', prix: '[XX €] / an' },
+// Grille tarifaire : adhésions annuelles, puis entrée à la journée pour les non-adhérents
+const adhesions = [
+	{ formule: 'Adhésion adulte', detail: '18 ans et plus', prix: '25 €' },
+	{
+		formule: 'Adhésion réduite et solidaire',
+		detail:
+			'Moins de 18 ans, étudiants, bénéficiaires de minima sociaux, ou si vous estimez ne pas avoir les moyens de payer 25 €',
+		prix: '15 €',
+	},
+	{ formule: 'Adhésion familiale', detail: 'Un ou deux adultes et les enfants mineurs qu\'ils accompagnent', prix: '50 €' },
+	{
+		formule: 'Adhésion de soutien',
+		detail: 'Si vous en avez les moyens et souhaitez nous donner un coup de pouce',
+		prix: '50 €',
+	},
+];
+
+const visiteurs = [
+	{ formule: 'Individuel', prix: '3 € / jour' },
+	{ formule: 'Famille', prix: '10 € / jour' },
 ];
 ---
 
@@ -62,12 +82,18 @@ const tarifs = [
 				<h3>Venir</h3>
 				<ul class="moyens">
 					{
-						acces.map(({ mode, texte, aVerifier, lien }) => (
+						acces.map(({ mode, texte, sousListe, aVerifier, lien }) => (
 							<li>
 								<strong>{mode}&nbsp;:</strong>{' '}
-								<span class={aVerifier ? 'a-completer' : undefined}>
-									{lien ? <a href={lien} target="_blank" rel="noopener">{texte}&nbsp;↗</a> : texte}
-								</span>
+								{sousListe ? (
+									<ul class="sous-liste">
+										{sousListe.map((element) => <li>{element}</li>)}
+									</ul>
+								) : (
+									<span class={aVerifier ? 'a-completer' : undefined}>
+										{lien ? <a href={lien} target="_blank" rel="noopener">{texte}&nbsp;↗</a> : texte}
+									</span>
+								)}
 							</li>
 						))
 					}
@@ -89,9 +115,26 @@ const tarifs = [
 					L'adhésion permet de soutenir l'association et de participer à toutes ses activités pendant un an.
 				</p>
 				<table>
+					<caption>Adhésions annuelles</caption>
 					<tbody>
 						{
-							tarifs.map(({ formule, prix }) => (
+							adhesions.map(({ formule, detail, prix }) => (
+								<tr>
+									<th scope="row">
+										{formule}
+										<span class="detail">{detail}</span>
+									</th>
+									<td>{prix}</td>
+								</tr>
+							))
+						}
+					</tbody>
+				</table>
+				<table>
+					<caption>Visiteurs non adhérents</caption>
+					<tbody>
+						{
+							visiteurs.map(({ formule, prix }) => (
 								<tr>
 									<th scope="row">{formule}</th>
 									<td>{prix}</td>
@@ -155,6 +198,16 @@ const tarifs = [
 		margin-bottom: 0.5rem;
 	}
 
+	/* Plusieurs options pour un même moyen de transport (ex. les lignes de bus) */
+	.sous-liste {
+		margin: 0.25rem 0 0;
+		padding-left: 1.2rem;
+	}
+
+	.sous-liste li {
+		margin-bottom: 0.25rem;
+	}
+
 	.colonne {
 		display: grid;
 		gap: 1.5rem;
@@ -163,7 +216,23 @@ const tarifs = [
 	table {
 		width: 100%;
 		border-collapse: collapse;
-		margin-bottom: 1rem;
+		margin-bottom: 1.5rem;
+	}
+
+	caption {
+		text-align: left;
+		font-family: var(--font-titre);
+		font-size: 1.15rem;
+		letter-spacing: 0.02em;
+		margin-bottom: 0.25rem;
+	}
+
+	.detail {
+		display: block;
+		font-size: 0.85rem;
+		font-weight: 400;
+		font-style: italic;
+		opacity: 0.8;
 	}
 
 	th,
@@ -177,7 +246,9 @@ const tarifs = [
 		font-weight: 700;
 	}
 
+	/* Prix aligné sur le nom de la formule, pas au milieu de sa description */
 	td {
+		vertical-align: top;
 		text-align: right;
 		font-weight: 800;
 		white-space: nowrap;

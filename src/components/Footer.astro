@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+import logo from '../assets/logo.png';
 import { url } from '../lib/url';
 import { site } from '../lib/site';
 import Embleme from './Embleme.astro';
@@ -9,7 +11,10 @@ import Reseaux from './Reseaux.astro';
 	<Embleme class="filigrane" />
 	<div class="conteneur grille">
 		<div>
-			<p class="nom">{site.nom}</p>
+			<p class="marque">
+				<Image src={logo} alt="" width={160} height={160} />
+				<span class="nom">{site.nom}</span>
+			</p>
 			<p>Association loi 1901<br />{site.slogan}</p>
 		</div>
 		<div>
@@ -43,6 +48,22 @@ import Reseaux from './Reseaux.astro';
 
 	p {
 		margin: 0 0 0.5rem;
+	}
+
+	/* Logo rond sur fond crème, comme dans l'en-tête, avec le nom à côté */
+	.marque {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin-bottom: 0.75rem;
+	}
+
+	.marque img {
+		flex: none;
+		width: 5rem;
+		height: 5rem;
+		border-radius: 50%;
+		background: var(--creme);
 	}
 
 	.nom {
