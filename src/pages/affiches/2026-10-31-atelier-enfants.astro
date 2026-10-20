@@ -35,7 +35,7 @@ const evenement: Evenement = {
 ---
 
 <Affiche evenement={evenement} class="halloween">
-	<!-- Chauve-souris crème au-dessus des images -->
+	<!-- Chauve-souris crème, en haut à droite -->
 	<svg slot="decor" class="chauve-souris" viewBox="0 0 100 42" aria-hidden="true">
 		<path
 			d="M50 12 C44 12 40 8 30 6 C20 4 10 6 2 12 C8 14 12 18 14 24 C18 20 24 20 28 26 C32 22 38 22 42 28 C44 32 47 36 50 40 C53 36 56 32 58 28 C62 22 68 22 72 26 C76 20 82 20 86 24 C88 18 92 14 98 12 C90 6 80 4 70 6 C60 8 56 12 50 12 Z"
@@ -55,25 +55,11 @@ const evenement: Evenement = {
 		--rose-fonce: #c2570a;
 	}
 
-	/* L'image d'ambiance est en paysage (3:2) : son cadre suit, pour ne pas couper le mot « Halloween » */
-	:global(.halloween .visuels li:nth-child(2) .cadre) {
-		aspect-ratio: 3 / 2;
-	}
-
-	/* Polaroïds couleur crème (comme le logo), avec un liseré pointillé marron au milieu de leur bord :
-	   le bord fait 2,5 mm, le trait de 0,4 mm est donc centré à 1,25 mm de l'extérieur */
-	/* « .feuille.halloween … li figure » : plus précis que la règle du modèle, sinon son fond blanc l'emporte */
-	:global(.feuille.halloween .visuels li figure) {
-		background: var(--creme);
-		outline: 0.4mm dashed var(--brun);
-		outline-offset: -1.45mm;
-	}
-
-	/* Chauve-souris : entre l'en-tête et le premier polaroïd, centrée sur la colonne d'images */
+	/* Chauve-souris : en haut à droite, sous l'en-tête, à côté de la pastille « Spécial Halloween » */
 	.chauve-souris {
 		position: absolute;
-		top: 52mm;
-		right: 22mm;
+		top: 44mm;
+		right: 10mm;
 		width: 34mm;
 		fill: var(--creme);
 		transform: rotate(-8deg);

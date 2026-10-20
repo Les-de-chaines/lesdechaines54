@@ -1,8 +1,12 @@
 ---
 // Modèle à copier pour une nouvelle affiche (le « _ » au début du nom l'empêche d'être publié).
-// 1. Copier ce fichier dans src/pages/affiches/, nommé AAAA-MM-JJ-nom-court.astro : ce sera l'adresse de l'affiche.
+// 1. Copier ce fichier dans src/pages/affiches/, nommé AAAA-MM-JJ-nom-court.astro : ce sera l'adresse de l'affiche,
+//    et la date sert à la ranger dans le carrousel de la page Événements.
 // 2. Remplacer les valeurs entre crochets (elles restent surlignées en jaune tant qu'elles ne sont pas remplies).
-// 3. Déposer les images dans src/assets/affiches/ et renseigner `fichier` pour chacune.
+// 3. Déposer les images dans src/assets/affiches/ et renseigner `fichier` pour chacune
+//    (sans fichier, un cadre en pointillés décrit l'image attendue).
+// 4. Facultatif : retouches propres à l'affiche (couleur, décor) en bas de ce fichier.
+// Les retouches propres à une affiche se font dans sa page, sans toucher au modèle (src/components/Affiche.astro).
 import Affiche from '../../components/Affiche.astro';
 import type { Evenement } from '../../lib/evenements';
 
@@ -15,17 +19,56 @@ const evenement: Evenement = {
 	fin: '[18h]',
 	public: '[Public visé]',
 	visuels: [
-		{ legende: '[Jeu 1]', description: '[Image du jeu 1]' },
-		{ description: "[Image d'ambiance]" },
-		{ legende: '[Jeu 2]', description: '[Image du jeu 2]' },
+		{
+			legende: '[Jeu 1]',
+			description: '[Le jeu 1 : sa boîte et son plateau]',
+			// fichier: 'jeu-1.jpg',
+		},
+		{
+			// Image d'ambiance, en paysage (3:2)
+			description: "[Image d'ambiance du thème]",
+			// fichier: 'ambiance.jpg',
+		},
+		{
+			legende: '[Jeu 2]',
+			description: '[Le jeu 2 : sa boîte et son plateau]',
+			// fichier: 'jeu-2.jpg',
+		},
 	],
 	tarifs: [
 		{ formule: 'Adhérent', prix: '[X €]' },
 		{ formule: 'Non adhérent', prix: '[X €]' },
 	],
-	inclus: '[Ce qui est compris]',
+	inclus: '[Ce qui est compris, ex. une boisson et un cookie]',
 	note: '[Places limitées, réservation conseillée]',
 };
 ---
 
-<Affiche evenement={evenement} />
+<!-- Renommer la classe « theme » selon l'événement (ex. « noel ») si l'affiche a ses propres retouches -->
+<Affiche evenement={evenement} class="theme">
+	<!-- Décor facultatif (illustration en SVG posée sur la feuille) : décommenter et dessiner
+	<svg slot="decor" class="decor" viewBox="0 0 100 40" aria-hidden="true">…</svg>
+	-->
+</Affiche>
+
+<style>
+	/* Retouches propres à cette affiche : préfixer par :global(.theme ...) */
+
+	/* Couleur d'accent à la place du rose (pastille, heure, jour de la semaine) ; le logo, une image, ne change pas
+	:global(.theme) {
+		--rose: #e8740c;
+		--rose-fonce: #c2570a;
+	}
+	*/
+
+	/* Décor : entre l'en-tête et la première image, centré sur la colonne d'images (à gauche)
+	.decor {
+		position: absolute;
+		top: 52mm;
+		left: 22mm;
+		width: 34mm;
+		fill: var(--creme);
+		transform: rotate(-8deg);
+	}
+	*/
+</style>

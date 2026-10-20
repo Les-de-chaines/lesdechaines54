@@ -1,0 +1,40 @@
+---
+// Affiche des portes ouvertes du vendredi 30 octobre 2026 : version retenue (classique).
+// Les retouches propres à cette affiche se font ici, sans toucher au modèle (src/components/Affiche.astro).
+import Affiche from '../../components/Affiche.astro';
+import type { Evenement } from '../../lib/evenements';
+
+const evenement: Evenement = {
+	categorie: 'Entrée libre',
+	titre: 'Journée\nPortes ouvertes',
+	accroche: 'Débutants ou experts, petits et grands : venez découvrir le café jeux et jouer avec la guilde !',
+	date: '2026-10-30',
+	debut: '13h',
+	programme: [
+		{ horaire: '13h – 18h', activite: 'Jeux de société' },
+		{ horaire: 'Dès 18h30', activite: 'Jeux de figurines' },
+	],
+	visuels: [
+		{
+			legende: 'Jeux de société',
+			description: '[Une table de jeux de société en pleine partie]',
+		},
+		{
+			legende: 'Crêpes, cookies & boissons',
+			description: 'Un cookie maison aux pépites de chocolat, sur une planche saupoudrée de cacao',
+			fichier: 'cookie-maison.jpg',
+		},
+		{
+			legende: 'Jeux de figurines',
+			description: 'Des figurines peintes au milieu des décors, en pleine bataille',
+			fichier: 'autre-bataille-de-figurines.jpeg',
+			// Côté gauche de la photo : le char et les escouades de Space Marines
+			cadrage: 'left',
+		},
+	],
+	tarifs: [{ formule: 'Entrée', prix: 'Gratuite' }],
+	note: 'Pas besoin de connaître les règles : on vous explique tout',
+};
+---
+
+<Affiche evenement={evenement} />

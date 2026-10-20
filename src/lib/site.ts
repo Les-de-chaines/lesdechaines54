@@ -18,6 +18,6 @@ export const site = {
 	reseaux: {
 		facebook: 'https://www.facebook.com/profile.php?id=61595152898987',
 		instagram: 'https://www.instagram.com/les_de_chaines/',
-		discord: '',
+		discord: 'https://discord.gg/DkYVq5hRZ',
 	},
 };
