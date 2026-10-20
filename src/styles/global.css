@@ -175,6 +175,12 @@ footer.avec-filigrane > .filigrane {
 	opacity: 0.06;
 }
 
+/* Information pas encore disponible (valeur vide dans src/lib/site.ts) */
+.bientot {
+	font-style: italic;
+	opacity: 0.75;
+}
+
 .a-completer {
 	background: #fff3b0;
 	padding: 0 0.25em;

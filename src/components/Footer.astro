@@ -27,7 +27,9 @@ import Reseaux from './Reseaux.astro';
 		</div>
 		<div>
 			<p class="titre">Contact</p>
-			<p><a href={`mailto:${site.email}`}>{site.email}</a></p>
+			<p>
+				{site.email ? <a href={`mailto:${site.email}`}>{site.email}</a> : <span class="bientot">E-mail bientôt disponible</span>}
+			</p>
 			<p class="titre suivre">Suivez-nous</p>
 			<Reseaux variante="discret" />
 		</div>

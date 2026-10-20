@@ -46,7 +46,13 @@ import { site } from '../lib/site';
 		<h2>Vos droits</h2>
 		<p>
 			Pour toute question sur vos données, ou pour exercer vos droits d'accès, de rectification et de suppression,
-			écrivez-nous à <a href={`mailto:${site.email}`}>{site.email}</a>.
+			{
+				site.email ? (
+					<>écrivez-nous à <a href={`mailto:${site.email}`}>{site.email}</a>.</>
+				) : (
+					<>écrivez-nous en message privé sur <a href={site.reseaux.facebook} target="_blank" rel="noopener">Facebook</a> (adresse e-mail <span class="bientot">bientôt disponible</span>).</>
+				)
+			}
 		</p>
 	</div>
 </Layout>

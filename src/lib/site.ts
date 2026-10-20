@@ -1,5 +1,5 @@
 // Informations de l'association, réutilisées sur tout le site.
-// Les valeurs entre crochets sont à compléter.
+// Une valeur laissée vide ('') s'affiche « bientôt disponible » ; il suffit de la remplir ici pour qu'elle apparaisse partout.
 export const site = {
 	nom: 'Les Dé-chaînés',
 	presidente: 'Cindy MANEL',
@@ -13,8 +13,12 @@ export const site = {
 		lat: 48.7905465,
 		lon: 6.1431975,
 	},
-	email: '[contact@exemple.fr]',
-	telephone: '[06 00 00 00 00]',
+	email: '',
+	telephone: '',
+	/** Numéro RNA (récépissé de déclaration en préfecture, au format W54…) */
+	rna: '',
+	/** Lien de la page d'adhésion HelloAsso */
+	helloasso: '',
 	reseaux: {
 		facebook: 'https://www.facebook.com/profile.php?id=61595152898987',
 		instagram: 'https://www.instagram.com/les_de_chaines/',

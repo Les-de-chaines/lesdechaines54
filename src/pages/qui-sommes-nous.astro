@@ -125,7 +125,14 @@ const bureau = [
 				</p>
 				<h3>Les bénévoles</h3>
 				<p>
-					Envie de tenir le comptoir, d'animer une partie ou d'organiser un tournoi&nbsp;? Toute aide est la bienvenue&nbsp;: <a href={`mailto:${site.email}`}>écrivez-nous</a>.
+					Envie de tenir le comptoir, d'animer une partie ou d'organiser un tournoi&nbsp;? Toute aide est la bienvenue&nbsp;:{' '}
+					{
+						site.email ? (
+							<a href={`mailto:${site.email}`}>écrivez-nous</a>
+						) : (
+							<a href={site.reseaux.facebook} target="_blank" rel="noopener">écrivez-nous sur Facebook</a>
+						)
+					}.
 				</p>
 			</section>
 		</div>

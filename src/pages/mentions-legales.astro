@@ -14,8 +14,8 @@ const { rue, codePostal, ville } = site.adresse;
 		<p>
 			<strong>{site.nom}</strong>, association loi 1901<br />
 			Siège social&nbsp;: {rue}, {codePostal} {ville}<br />
-			<span class="a-completer">N° RNA&nbsp;: [W000000000]</span><br />
-			E-mail&nbsp;: <a href={`mailto:${site.email}`}>{site.email}</a>
+			N° RNA&nbsp;: {site.rna || <span class="bientot">bientôt disponible</span>}<br />
+			E-mail&nbsp;: {site.email ? <a href={`mailto:${site.email}`}>{site.email}</a> : <span class="bientot">bientôt disponible</span>}
 		</p>
 
 		<h2>Directrice de la publication</h2>

@@ -67,8 +67,14 @@ const visiteurs = [
 					<a href={lienCarte} target="_blank" rel="noopener">Voir sur Google Maps ↗</a>
 				</p>
 				<p>
-					<a href={`mailto:${site.email}`}>{site.email}</a><br />
-					<a href={`tel:${site.telephone.replace(/[^\d+]/g, '')}`}>{site.telephone}</a>
+					{site.email ? <a href={`mailto:${site.email}`}>{site.email}</a> : <span class="bientot">E-mail bientôt disponible</span>}<br />
+					{
+						site.telephone ? (
+							<a href={`tel:${site.telephone.replace(/[^\d+]/g, '')}`}>{site.telephone}</a>
+						) : (
+							<span class="bientot">Téléphone bientôt disponible</span>
+						)
+					}
 				</p>
 				<p>Vous pouvez aussi nous écrire en message privé&nbsp;:</p>
 				<Reseaux variante="discret" />
@@ -151,7 +157,13 @@ const visiteurs = [
 						}
 					</tbody>
 				</table>
-				<p class="a-completer">[Le bouton d'adhésion HelloAsso sera ajouté ici.]</p>
+				{
+					site.helloasso ? (
+						<p><a href={site.helloasso} class="bouton" target="_blank" rel="noopener">Adhérer en ligne</a></p>
+					) : (
+						<p class="bientot">Adhésion en ligne bientôt disponible</p>
+					)
+				}
 				</details>
 			</section>
 		</div>
