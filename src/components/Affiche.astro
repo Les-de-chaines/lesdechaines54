@@ -264,6 +264,10 @@ const marque = (texte?: string) => (aCompleter(texte) ? 'a-completer' : undefine
 	}
 
 	@media print {
+		:global(.apercu) .feuille {
+			zoom: 1;
+		}
+
 		html,
 		body {
 			background: none;

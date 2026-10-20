@@ -45,7 +45,7 @@ const affiches = fs
 					<li class="affiche" data-date={date}>
 						<div class="vignette">
 							<iframe src={lien} loading="lazy" tabindex="-1" aria-hidden="true" title="" />
-							<a href={lien} class="ouvrir" aria-label={`${titre}, ${jour} : voir l'affiche`} />
+							<a href={lien} class="ouvrir" data-titre={`${titre}, ${jour}`} aria-label={`${titre}, ${jour} : voir l'affiche`} />
 							<span class="termine">Terminé</span>
 						</div>
 						<p class="legende">
@@ -64,6 +64,25 @@ const affiches = fs
 				))}
 			</div>
 		</section>
+	)
+}
+
+{
+	affiches.length > 0 && (
+		/* Fenêtre qui affiche l'affiche en grand, sans quitter la page (sans JS, le lien ouvre la page de l'affiche) */
+		<dialog class="fenetre-affiche" aria-label="Affiche">
+			<div class="cadre-fenetre">
+				<iframe title="" />
+				<button class="outil telecharger" type="button" aria-label="Télécharger l'affiche en PDF" title="Télécharger en PDF">
+					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 17v3h16v-3" /></svg>
+				</button>
+				<button class="outil fermer" type="button" aria-label="Fermer" title="Fermer">
+					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+				</button>
+			</div>
+			<button class="fleche-fenetre avant" type="button" aria-label="Affiche précédente">‹</button>
+			<button class="fleche-fenetre apres" type="button" aria-label="Affiche suivante">›</button>
+		</dialog>
 	)
 }
 
@@ -103,6 +122,46 @@ const affiches = fs
 		piste.addEventListener('scroll', maj, { passive: true });
 		window.addEventListener('resize', maj);
 		maj();
+	});
+
+	// Fenêtre : un clic sur une vignette ouvre l'affiche en grand au lieu de quitter la page
+	document.querySelectorAll<HTMLDialogElement>('.fenetre-affiche').forEach((fenetre) => {
+		const cadre = fenetre.querySelector('iframe')!;
+		const liens = [...document.querySelectorAll<HTMLAnchorElement>('.carrousel-affiches .ouvrir')];
+		const avant = fenetre.querySelector<HTMLButtonElement>('.avant')!;
+		const apres = fenetre.querySelector<HTMLButtonElement>('.apres')!;
+		let courante = 0;
+
+		const afficher = (i: number) => {
+			courante = (i + liens.length) % liens.length;
+			cadre.src = liens[courante].href;
+			fenetre.setAttribute('aria-label', `Affiche : ${liens[courante].dataset.titre}`);
+		};
+		avant.hidden = apres.hidden = liens.length < 2;
+
+		liens.forEach((lien, i) =>
+			lien.addEventListener('click', (e) => {
+				e.preventDefault();
+				afficher(i);
+				fenetre.showModal();
+			}),
+		);
+		avant.addEventListener('click', () => afficher(courante - 1));
+		apres.addEventListener('click', () => afficher(courante + 1));
+		fenetre.addEventListener('keydown', (e) => {
+			if (e.key === 'ArrowLeft') afficher(courante - 1);
+			if (e.key === 'ArrowRight') afficher(courante + 1);
+		});
+
+		// Téléchargement : la boîte d'impression du navigateur, sur l'affiche seule (« Enregistrer en PDF »)
+		fenetre.querySelector('.telecharger')!.addEventListener('click', () => cadre.contentWindow?.print());
+
+		// Fermeture : bouton, touche Échap (native), ou clic à côté de l'affiche
+		fenetre.querySelector('.fermer')!.addEventListener('click', () => fenetre.close());
+		fenetre.addEventListener('click', (e) => {
+			if (e.target === fenetre) fenetre.close();
+		});
+		fenetre.addEventListener('close', () => cadre.removeAttribute('src'));
 	});
 </script>
 
@@ -300,5 +359,151 @@ const affiches = fs
 
 	.points button[aria-current='true'] {
 		background: var(--rose);
+	}
+
+	/* Fenêtre : l'affiche au format A4, aussi grande que l'écran le permet */
+	.fenetre-affiche {
+		padding: 0;
+		border: 0;
+		background: none;
+		overflow: visible;
+	}
+
+	.fenetre-affiche::backdrop {
+		background: rgb(30 17 10 / 0.85);
+	}
+
+	.cadre-fenetre {
+		position: relative;
+		width: min(92vw, calc(90dvh * 210 / 297));
+		aspect-ratio: 210 / 297;
+	}
+
+	.cadre-fenetre iframe {
+		display: block;
+		width: 100%;
+		height: 100%;
+		border: 0;
+		border-radius: var(--rayon);
+		box-shadow: 0 1rem 3rem rgb(0 0 0 / 0.5);
+		background: var(--brun);
+	}
+
+	/* Petits boutons ronds et transparents, juste à côté de l'affiche (dessus, ils cacheraient le titre ou un décor) ;
+	   opaques au survol. Grand écran : à droite de l'affiche ; mobile : au-dessus. */
+	.outil {
+		position: absolute;
+		width: 2.6rem;
+		height: 2.6rem;
+		display: grid;
+		place-items: center;
+		padding: 0;
+		color: var(--blanc);
+		background: rgb(0 0 0 / 0.35);
+		border: 1.5px solid rgb(255 255 255 / 0.5);
+		border-radius: 50%;
+		backdrop-filter: blur(2px);
+		cursor: pointer;
+		transition: background 0.15s;
+	}
+
+	.outil:hover,
+	.outil:focus-visible {
+		background: var(--rose);
+		border-color: var(--blanc);
+	}
+
+	.outil svg {
+		width: 1.3rem;
+		height: 1.3rem;
+		fill: none;
+		stroke: currentColor;
+		stroke-width: 2.2;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+
+	.fermer {
+		top: 0;
+		right: -3.4rem;
+	}
+
+	.telecharger {
+		top: 3.2rem;
+		right: -3.4rem;
+	}
+
+	@media (max-width: 47.99rem) {
+		/* De la place au-dessus de l'affiche pour les boutons */
+		.fenetre-affiche {
+			padding-top: 3.5rem;
+		}
+
+		.cadre-fenetre {
+			width: min(92vw, calc((88dvh - 3.5rem) * 210 / 297));
+		}
+
+		.fermer {
+			top: -3.2rem;
+			right: 0;
+		}
+
+		.telecharger {
+			top: -3.2rem;
+			right: 3.2rem;
+		}
+	}
+
+	/* Flèches de la fenêtre : de part et d'autre de l'affiche (dedans, sur mobile) */
+	.fleche-fenetre {
+		position: absolute;
+		top: 50%;
+		translate: 0 -50%;
+		width: 2.75rem;
+		height: 2.75rem;
+		display: grid;
+		place-items: center;
+		font-size: 2rem;
+		line-height: 1;
+		padding-bottom: 0.2rem;
+		color: var(--brun);
+		background: var(--creme);
+		border: 3px solid var(--brun);
+		border-radius: 50%;
+		cursor: pointer;
+	}
+
+	.fleche-fenetre[hidden] {
+		display: none;
+	}
+
+	.fleche-fenetre:hover {
+		color: var(--blanc);
+		background: var(--rose);
+	}
+
+	.avant {
+		left: -3.75rem;
+	}
+
+	.apres {
+		right: -3.75rem;
+	}
+
+	@media (max-width: 47.99rem) {
+		.fleche-fenetre {
+			width: 2.2rem;
+			height: 2.2rem;
+			font-size: 1.5rem;
+			background: rgb(251 246 234 / 0.85);
+		}
+
+		.avant {
+			left: 0.5rem;
+		}
+
+		.apres {
+			right: 0.5rem;
+		}
 	}
 </style>
