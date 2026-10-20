@@ -1,0 +1,188 @@
+---
+// Bannière (photo de couverture) de la page Facebook : l'en-tête du site et les trois images des portes ouvertes, sur parchemin.
+// Format Facebook : 820 × 312 px, exportée au double (1640 × 624 px) pour rester nette.
+// Sur mobile, Facebook ne garde que le centre (640 px de large) : tout le contenu tient dans cette zone.
+// Pour l'exporter : capture de la page à 820 × 312 avec un facteur d'échelle 2 (Chrome sans interface, --force-device-scale-factor=2).
+import '@fontsource/luckiest-guy/latin-400.css';
+import '@fontsource/nunito/latin-700-italic.css';
+import '../../styles/global.css';
+import { Image } from 'astro:assets';
+import logo from '../../assets/logo.png';
+import splendor from '../../assets/affiches/partie-de-splendor.jpg';
+import cookie from '../../assets/affiches/cookie-maison.jpg';
+import figurines from '../../assets/affiches/autre-bataille-de-figurines.jpeg';
+import Embleme from '../../components/Embleme.astro';
+import { site } from '../../lib/site';
+
+const images = [
+	{ src: splendor, alt: 'Une partie de Splendor en cours', legende: 'Jeux de société' },
+	{ src: cookie, alt: 'Un cookie maison aux pépites de chocolat', legende: 'Crêpes, cookies & boissons', paysage: true },
+	{ src: figurines, alt: 'Une bataille de figurines peintes', legende: 'Jeux de figurines', cadrage: 'left' },
+];
+---
+
+<!doctype html>
+<html lang="fr">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="robots" content="noindex" />
+		<title>Bannière Facebook · {site.nom}</title>
+	</head>
+	<body>
+		<div class="banniere">
+			<Embleme class="filigrane" />
+
+			<header class="entete">
+				<Image src={logo} alt="" width={300} height={300} class="logo" />
+				<div>
+					<p class="nom">{site.nom}</p>
+					<p class="accroche">{site.accroche}</p>
+				</div>
+			</header>
+
+			<ul class="visuels">
+				{
+					images.map(({ src, alt, legende, paysage, cadrage }) => (
+						<li class:list={{ paysage }}>
+							<figure>
+								<Image src={src} alt={alt} width={600} class="cadre" style={cadrage && `object-position: ${cadrage}`} />
+								<figcaption>{legende}</figcaption>
+							</figure>
+						</li>
+					))
+				}
+			</ul>
+		</div>
+	</body>
+</html>
+
+<style>
+	body {
+		margin: 0;
+		min-height: 0;
+		background: #d9d2c3;
+	}
+
+	.banniere {
+		position: relative;
+		isolation: isolate;
+		overflow: hidden;
+		width: 820px;
+		height: 312px;
+		box-sizing: border-box;
+		color: var(--creme);
+		background: var(--brun);
+		border-bottom: 5px solid var(--vert);
+		/* Tout le contenu resserré au centre, en largeur comme en hauteur */
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		gap: 12px;
+	}
+
+	/* Le dé aux chaînes en filigrane, comme sur les affiches */
+	.banniere > :global(.filigrane) {
+		position: absolute;
+		z-index: -1;
+		right: -70px;
+		top: -40px;
+		width: 380px;
+		color: var(--creme);
+		opacity: 0.08;
+	}
+
+	/* En-tête : le même que celui du site, centré */
+	.entete {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 12px;
+	}
+
+	.logo {
+		width: 64px;
+		height: 64px;
+		border-radius: 50%;
+		background: var(--creme);
+		border: 3px solid var(--vert);
+	}
+
+	.entete p {
+		margin: 0;
+	}
+
+	.nom {
+		font-family: var(--font-titre);
+		font-size: 34px;
+		line-height: 1;
+		letter-spacing: 0.02em;
+	}
+
+	.accroche {
+		margin-top: 4px !important;
+		font-size: 14px;
+		font-style: italic;
+		font-weight: 700;
+		color: var(--vert);
+	}
+
+	/* Les trois images sur parchemin (même style que les affiches), légèrement de travers */
+	.visuels {
+		display: flex;
+		justify-content: center;
+		align-items: flex-start;
+		gap: 16px;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.visuels li {
+		width: 114px;
+		filter: drop-shadow(2px 3px 0 rgb(0 0 0 / 0.4));
+	}
+
+	.visuels li.paysage {
+		width: 172px;
+	}
+
+	.visuels figure {
+		margin: 0;
+		padding: 8px 8px 6px;
+		color: #4a2a12;
+		background: var(--parchemin-fond);
+		background-size: auto, auto, auto, 150px 150px, auto;
+		box-shadow:
+			inset 0 0 11px rgb(110 60 15 / 0.55),
+			inset 0 0 3px rgb(70 35 10 / 0.7);
+		clip-path: var(--parchemin-contour);
+		transform: rotate(-3deg);
+	}
+
+	.visuels li:nth-child(2) figure {
+		transform: rotate(2deg);
+	}
+
+	.visuels li:nth-child(3) figure {
+		transform: rotate(-1.5deg);
+	}
+
+	/* Images à la même hauteur : carrées, sauf celle du milieu en paysage (3:2) */
+	.cadre {
+		display: block;
+		width: 100%;
+		height: 98px;
+		object-fit: cover;
+		filter: sepia(0.25) contrast(1.05);
+		box-shadow: 0 0 0 1.3px #5a3418;
+	}
+
+	figcaption {
+		margin-top: 5px;
+		font-family: var(--font-titre);
+		font-size: 11px;
+		line-height: 1.1;
+		text-align: center;
+		white-space: nowrap;
+	}
+</style>
