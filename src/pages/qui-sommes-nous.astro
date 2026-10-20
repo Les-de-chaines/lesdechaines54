@@ -81,11 +81,20 @@ const bureau = [
 
 			<section class="carte colonne">
 				<h2 class="titre-embleme"><Embleme />Notre objet</h2>
-				<p>Selon nos statuts, l'association a pour but de&nbsp;:</p>
-				<ul class="a-completer">
-					<li>[promouvoir la pratique des jeux de société et des jeux de figurines]</li>
-					<li>[créer du lien social autour du jeu, pour tous les âges]</li>
-					<li>[faire vivre un café associatif, lieu de rencontre et de convivialité]</li>
+				<p>
+					Selon nos statuts, l'association a pour objet de promouvoir et de développer la pratique des jeux de société,
+					des jeux de figurines, des jeux de rôle et, plus généralement, des activités ludiques, créatives et
+					culturelles. Elle pourra notamment&nbsp;:
+				</p>
+				<ul class="objet">
+					<li>organiser des parties, rencontres, initiations, tournois et événements ludiques&nbsp;;</li>
+					<li>mettre à disposition de ses adhérents un espace de jeu et du matériel adapté&nbsp;;</li>
+					<li>favoriser les échanges, la convivialité et le partage&nbsp;;</li>
+					<li>organiser des animations, ateliers et manifestations en lien avec son objet&nbsp;;</li>
+					<li>
+						proposer, à titre accessoire, des boissons non alcoolisées, des collations et autres produits alimentaires,
+						afin de contribuer au financement de ses activités.
+					</li>
 				</ul>
 				<p class="documents">
 					{
@@ -148,8 +157,12 @@ const bureau = [
 		margin: 1.25rem 0 0.4rem;
 	}
 
-	ul.a-completer {
+	ul.objet {
 		padding-left: 1.2rem;
+	}
+
+	.objet li + li {
+		margin-top: 0.3rem;
 	}
 
 	/* La quête fondatrice, façon journal de quêtes */
