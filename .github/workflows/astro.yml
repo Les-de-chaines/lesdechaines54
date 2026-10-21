@@ -72,6 +72,12 @@ jobs:
             --site "${{ steps.pages.outputs.origin }}" \
             --base "${{ steps.pages.outputs.base_path }}"
         working-directory: ${{ env.BUILD_PATH }}
+      # Visuels PNG des affiches (A4, événement Facebook, publication Instagram), servis sur /outils/visuels/
+      - name: Generate poster images
+        run: |
+          npx playwright install --with-deps chromium
+          BASE_PATH="${{ steps.pages.outputs.base_path }}" npm run visuels
+        working-directory: ${{ env.BUILD_PATH }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

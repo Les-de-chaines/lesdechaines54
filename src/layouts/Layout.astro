@@ -14,9 +14,11 @@ import { site } from '../lib/site';
 interface Props {
 	titre?: string;
 	description?: string;
+	/** Page interne : exclue des moteurs de recherche */
+	cachee?: boolean;
 }
 
-const { titre, description = `${site.nom} : ${site.accroche}. ${site.devise} Jeux de société, figurines, ateliers, tournois, café et gourmandises.` } = Astro.props;
+const { titre, cachee, description = `${site.nom} : ${site.accroche}. ${site.devise} Jeux de société, figurines, ateliers, tournois, café et gourmandises.` } = Astro.props;
 ---
 
 <!doctype html>
@@ -27,6 +29,7 @@ const { titre, description = `${site.nom} : ${site.accroche}. ${site.devise} Jeu
 		<link rel="icon" type="image/png" href={url('favicon.png')} />
 		<link rel="apple-touch-icon" href={url('favicon.png')} />
 		<meta name="generator" content={Astro.generator} />
+		{cachee && <meta name="robots" content="noindex" />}
 		<title>{titre ? `${titre} · ${site.nom}` : site.nom}</title>
 		<meta name="description" content={description} />
 	</head>

@@ -1,0 +1,141 @@
+---
+// Page interne (non liée, non référencée) : les visuels PNG de chaque affiche, prêts à publier.
+// Les PNG sont fabriqués à la mise en ligne par scripts/visuels.mjs (voir .github/workflows/astro.yml).
+// L'affiche à imprimer (PDF) reste sur la page de l'affiche, bouton « Imprimer / Enregistrer en PDF ».
+import fs from 'node:fs';
+import Layout from '../../layouts/Layout.astro';
+import { url } from '../../lib/url';
+
+const formats = [
+	{ cle: 'a4', nom: 'Affiche A4', taille: '1240 × 1754', usage: 'À partager ou à envoyer en image' },
+	{ cle: 'facebook', nom: 'Événement Facebook', taille: '1920 × 1005', usage: 'Photo de couverture de l’événement' },
+	{ cle: 'instagram', nom: 'Publication Instagram', taille: '1080 × 1350', usage: 'Post du fil, format portrait 4:5' },
+];
+
+// Mêmes affiches que le carrousel des événements : AAAA-MM-JJ-nom.astro, les plus récentes en premier
+const affiches = fs
+	.readdirSync('src/pages/affiches')
+	.map((fichier) => fichier.match(/^((\d{4}-\d{2}-\d{2})-.+)\.astro$/))
+	.filter((m): m is RegExpMatchArray => !!m)
+	.map(([, nom, date]) => {
+		const source = fs.readFileSync(`src/pages/affiches/${nom}.astro`, 'utf-8');
+		const titre = source.match(/^\s*titre:\s*(['"])(.*)\1,?\s*$/m)?.[2].replace(/\\n/g, ' ').replace(/\\(['"])/g, '$1') ?? nom;
+		const jour = new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', weekday: 'long', day: 'numeric', month: 'long' }).format(
+			new Date(`${date}T12:00:00+01:00`),
+		);
+		return { nom, date, titre, jour };
+	})
+	.sort((a, b) => b.date.localeCompare(a.date));
+---
+
+<Layout titre="Visuels des affiches" description="Visuels des affiches pour les réseaux sociaux." cachee>
+	<div class="conteneur section">
+		<h1>Visuels des affiches</h1>
+		<p class="intro">
+			Les affiches en image, prêtes à publier. Pour imprimer, ouvrez l'affiche et utilisez le bouton «&nbsp;Imprimer /
+			Enregistrer en PDF&nbsp;».
+		</p>
+
+		{
+			affiches.map(({ nom, titre, jour }) => (
+				<section class="carte affiche">
+					<h2>{titre}</h2>
+					<p class="jour">
+						{jour} · <a href={url(`affiches/${nom}/`)}>Ouvrir l'affiche (PDF) ↗</a>
+					</p>
+					<ul class="formats">
+						{formats.map(({ cle, nom: format, taille, usage }) => {
+							const fichier = url(`visuels/${nom}-${cle}.png`);
+							return (
+								<li class={cle}>
+									<a href={fichier} target="_blank" rel="noopener" class="vignette">
+										<img src={fichier} alt={`${titre} : ${format}`} loading="lazy" />
+									</a>
+									<p>
+										<strong>{format}</strong>
+										<span>
+											{taille} px · {usage}
+										</span>
+									</p>
+									<a href={fichier} download={`${nom}-${cle}.png`} class="bouton">
+										Télécharger le PNG
+									</a>
+								</li>
+							);
+						})}
+					</ul>
+				</section>
+			))
+		}
+	</div>
+</Layout>
+
+<style>
+	.intro {
+		margin-bottom: 1.5rem;
+	}
+
+	.affiche + .affiche {
+		margin-top: 1.5rem;
+	}
+
+	.affiche h2 {
+		margin: 0;
+	}
+
+	.jour {
+		margin: 0.25rem 0 1.25rem;
+	}
+
+	/* Les trois formats côte à côte, alignés par le bas (boutons sur une même ligne) */
+	.formats {
+		display: grid;
+		gap: 1.5rem;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	@media (min-width: 48rem) {
+		.formats {
+			grid-template-columns: 1fr 1.6fr 1fr;
+			align-items: end;
+		}
+	}
+
+	.formats li {
+		display: flex;
+		flex-direction: column;
+		gap: 0.6rem;
+	}
+
+	.vignette {
+		display: block;
+		border: 3px solid var(--brun);
+		border-radius: var(--rayon);
+		overflow: hidden;
+		background: var(--brun);
+		box-shadow: 4px 4px 0 var(--vert);
+	}
+
+	.vignette img {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+
+	.formats p {
+		display: flex;
+		flex-direction: column;
+		margin: 0;
+	}
+
+	.formats p span {
+		font-size: 0.85rem;
+		opacity: 0.8;
+	}
+
+	.formats .bouton {
+		align-self: flex-start;
+	}
+</style>

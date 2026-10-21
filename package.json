@@ -9,6 +9,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "visuels": "node scripts/visuels.mjs",
     "astro": "astro"
   },
   "dependencies": {
@@ -18,6 +19,7 @@
     "qrcode": "^1.5.4"
   },
   "devDependencies": {
-    "@types/qrcode": "^1.5.5"
+    "@types/qrcode": "^1.5.5",
+    "playwright": "1.63.0"
   }
 }

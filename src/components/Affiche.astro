@@ -67,6 +67,13 @@ const marque = (texte?: string) => (aCompleter(texte) ? 'a-completer' : undefine
 		<link rel="icon" type="image/png" href={url('favicon.png')} />
 		<title>Affiche · {ligne2} · {jourMois} · {site.nom}</title>
 		<script is:inline>
+			// Export en image (scripts/visuels.mjs) : « ?format=a4 | facebook | instagram » affiche la feuille seule, à ce format
+			const format = new URLSearchParams(location.search).get('format');
+			if (['a4', 'facebook', 'instagram'].includes(format)) {
+				document.documentElement.classList.add('export', `format-${format}`);
+			}
+		</script>
+		<script is:inline>
 			// Aperçu : affichée dans une iframe (carrousel de la page Événements), l'affiche seule remplit le cadre
 			if (window.self !== window.top) {
 				const racine = document.documentElement;
@@ -268,6 +275,127 @@ const marque = (texte?: string) => (aCompleter(texte) ? 'a-completer' : undefine
 	:global(.apercu) .feuille {
 		zoom: var(--echelle);
 		box-shadow: none;
+	}
+
+	/* Export en image : la feuille seule, en haut à gauche, à sa taille réelle */
+	:global(html.export) {
+		background: none;
+	}
+
+	:global(.export) body {
+		padding: 0;
+	}
+
+	:global(.export) .outils {
+		display: none;
+	}
+
+	:global(.export) .feuille {
+		zoom: 1;
+		margin: 0;
+		box-shadow: none;
+	}
+
+	/* Réseaux sociaux : la feuille est mise à l'échelle d'une fenêtre aux dimensions entières (voir scripts/visuels.mjs),
+	   pour que l'image finale tombe pile sur la taille demandée */
+	:global(.format-facebook) body,
+	:global(.format-instagram) body {
+		background: var(--brun);
+	}
+
+	:global(.export.format-facebook) .feuille {
+		zoom: calc(1024 / 1123);
+	}
+
+	:global(.export.format-instagram) .feuille {
+		zoom: calc(800 / 794);
+	}
+
+	/* Couverture d'événement Facebook (1920 × 1005) : en paysage, sans le pied, sur trois colonnes comme l'affiche :
+	   images à gauche, titre au milieu, date et horaire à droite.
+	   .corps s'efface (display: contents) pour que ses blocs se placent directement dans la grille de la feuille. */
+	:global(.format-facebook) .feuille {
+		width: 297mm;
+		height: calc(297mm * 1005 / 1920);
+		display: grid;
+		grid-template-columns: 36mm 1.2fr 1fr;
+		grid-template-rows: auto 1fr auto;
+		grid-template-areas:
+			'visuels entete entete'
+			'visuels titre quand'
+			'visuels tarifs quand';
+		align-items: center;
+		justify-items: center;
+		column-gap: 9mm;
+		padding: 0 12mm 4mm;
+		box-sizing: border-box;
+		text-align: center;
+		border-bottom: 2mm solid var(--vert);
+	}
+
+	:global(.format-facebook) .corps {
+		display: contents;
+	}
+
+	:global(.format-facebook) .pied {
+		display: none;
+	}
+
+	:global(.format-facebook) .entete {
+		grid-area: entete;
+		padding: 6mm 0 0;
+		gap: 4mm;
+	}
+
+	:global(.format-facebook) .logo {
+		width: 24mm;
+		height: 24mm;
+	}
+
+	:global(.format-facebook) .nom {
+		font-size: 11mm;
+	}
+
+	:global(.format-facebook) .accroche-site {
+		font-size: 5mm;
+	}
+
+	:global(.format-facebook) .titraille {
+		zoom: 0.82;
+	}
+
+	:global(.format-facebook) .quand {
+		zoom: 0.8;
+	}
+
+	:global(.format-facebook) .tarifs {
+		align-self: end;
+		zoom: 0.9;
+	}
+
+	/* Les trois images empilées à gauche, comme sur l'affiche, en plus petit */
+	:global(.format-facebook) .visuels {
+		zoom: 0.68;
+	}
+
+	:global(.format-facebook) .feuille > :global(.filigrane) {
+		right: -30mm;
+		bottom: -30mm;
+		width: 120mm;
+	}
+
+	/* Publication Instagram (1080 × 1350, portrait 4:5) : l'affiche sans le pied, avec une bande verte en bas */
+	:global(.format-instagram) .feuille {
+		height: calc(210mm * 1350 / 1080);
+		border-bottom: 2mm solid var(--vert);
+	}
+
+	:global(.format-instagram) .pied {
+		display: none;
+	}
+
+	:global(.format-instagram) .corps {
+		padding-bottom: 6mm;
 	}
 
 	@media print {
