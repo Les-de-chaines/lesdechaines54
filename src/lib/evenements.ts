@@ -30,6 +30,8 @@ export interface Evenement {
 	inclus?: string;
 	/** Dernière ligne avant le pied de l'affiche (réservation, places limitées…) */
 	note?: string;
+	/** Ligne « Contact : … » sous la note (ex. « par message au 06 … ») */
+	contact?: string;
 }
 
 /** Vrai si le texte est encore à compléter (entre crochets) */

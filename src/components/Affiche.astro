@@ -25,7 +25,7 @@ interface Props {
 }
 
 const { evenement, class: classe } = Astro.props;
-const { categorie, accroche, debut, fin, programme, visuels, tarifs, inclus, note } = evenement;
+const { categorie, accroche, debut, fin, programme, visuels, tarifs, inclus, note, contact } = evenement;
 const [ligne1, ligne2] = evenement.titre.includes('\n') ? evenement.titre.split('\n') : [undefined, evenement.titre];
 
 // Midi à Paris, pour ne jamais basculer sur la veille ou le lendemain
@@ -170,6 +170,13 @@ const marque = (texte?: string) => (aCompleter(texte) ? 'a-completer' : undefine
 					</p>
 					{inclus && <p class="inclus">{inclus}</p>}
 					{note && <p class:list={['note', marque(note)]}>{note}</p>}
+					{
+						contact && (
+							<p class="contact">
+								Contact&nbsp;: <strong>{contact}</strong>
+							</p>
+						)
+					}
 				</div>
 			</div>
 
@@ -584,6 +591,17 @@ const marque = (texte?: string) => (aCompleter(texte) ? 'a-completer' : undefine
 		font-size: 4mm;
 		font-style: italic;
 		font-weight: 700;
+	}
+
+	.contact {
+		margin-top: 1.5mm;
+		font-size: 4.5mm;
+	}
+
+	.contact strong {
+		font-weight: 800;
+		color: var(--vert);
+		white-space: nowrap;
 	}
 
 	/* Pied : adresse et réseaux, avec le QR code vers Facebook */
