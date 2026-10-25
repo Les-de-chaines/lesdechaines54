@@ -1,5 +1,6 @@
 ---
-// Proposition d'affiche n° 2 : « Parchemin », la carte comme une page de grimoire de taverne.
+// Affiche de la carte (boissons et gourmandises), sans date : elle reste dans le carrousel toute l'année.
+// La carte comme une page de grimoire de taverne. Les prix se modifient dans src/lib/carte.ts.
 // Toute la feuille est un parchemin (même texture que les images des affiches), posé sur un cadre brun,
 // l'encre est brune, les prix en rose foncé, les accents en vert (vert foncé pour le texte, lisible sur le parchemin).
 import { Image } from 'astro:assets';
@@ -18,7 +19,7 @@ const ordre = ['Boissons chaudes', 'Bières', 'Softs', 'Grignotage', 'Crêpes'];
 const rubriques = ordre.map((titre) => carte.find((rubrique) => rubrique.titre === titre)).filter((r) => r !== undefined);
 ---
 
-<FeuilleA4 titre="Carte · Parchemin" class="parchemin">
+<FeuilleA4 titre="Carte de la Taverne" class="parchemin">
 	<div class="ombre">
 		<div class="page">
 			<Embleme class="filigrane" />

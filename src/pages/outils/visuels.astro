@@ -23,9 +23,21 @@ const affiches = fs
 		const jour = new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', weekday: 'long', day: 'numeric', month: 'long' }).format(
 			new Date(`${date}T12:00:00+01:00`),
 		);
-		return { nom, date, titre, jour };
+		return { nom, date, titre, jour, cles: formats.map(({ cle }) => cle) };
 	})
 	.sort((a, b) => b.date.localeCompare(a.date));
+
+// Affiches sans date (ex. la carte), en tête : faites avec FeuilleA4, elles n'ont pas de couverture Facebook
+const permanentes = fs
+	.readdirSync('src/pages/affiches')
+	.filter((fichier) => /^[^_].*\.astro$/.test(fichier) && !/^\d{4}-\d{2}-\d{2}-/.test(fichier))
+	.map((fichier) => {
+		const nom = fichier.replace(/\.astro$/, '');
+		const source = fs.readFileSync(`src/pages/affiches/${fichier}`, 'utf-8');
+		const titre = source.match(/<FeuilleA4 titre="([^"]+)"/)?.[1] ?? nom;
+		return { nom, date: '', titre, jour: 'Toute l’année', cles: ['a4', 'instagram'] };
+	});
+affiches.unshift(...permanentes);
 ---
 
 <Layout titre="Visuels des affiches" description="Visuels des affiches pour les réseaux sociaux." cachee>
@@ -37,14 +49,14 @@ const affiches = fs
 		</p>
 
 		{
-			affiches.map(({ nom, titre, jour }) => (
+			affiches.map(({ nom, titre, jour, cles }) => (
 				<section class="carte affiche">
 					<h2>{titre}</h2>
 					<p class="jour">
 						{jour} · <a href={url(`affiches/${nom}/`)}>Ouvrir l'affiche (PDF) ↗</a>
 					</p>
 					<ul class="formats">
-						{formats.map(({ cle, nom: format, taille, usage }) => {
+						{formats.filter(({ cle }) => cles.includes(cle)).map(({ cle, nom: format, taille, usage }) => {
 							const fichier = url(`visuels/${nom}-${cle}.png`);
 							return (
 								<li class={cle}>

@@ -52,6 +52,8 @@ for (const [format, { largeur, hauteur, largeurFinale }] of Object.entries(FORMA
 	});
 	for (const affiche of affiches) {
 		await page.goto(`${origine}affiches/${affiche}/?format=${format}`, { waitUntil: 'networkidle' });
+		// Une affiche qui ne sait pas se mettre à ce format (ex. la carte, sans couverture Facebook) est passée
+		if (!(await page.evaluate((f) => document.documentElement.classList.contains(`format-${f}`), format))) continue;
 		await page.evaluate(() => document.fonts.ready);
 		const fichier = path.join(SORTIE, `${affiche}-${format}.png`);
 		await page.screenshot({ path: fichier });
