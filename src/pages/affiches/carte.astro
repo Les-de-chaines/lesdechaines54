@@ -42,7 +42,10 @@ const rubriques = ordre.map((titre) => carte.find((rubrique) => rubrique.titre =
 					{rue}, {codePostal} {ville}<br />
 					<span class="mentions">{mentionsAlcool.join(' ')}</span>
 				</p>
-				<span class="qr-code" set:html={qr} />
+				<div class="qr">
+					<p>Suivez-nous<br />sur Facebook&nbsp;!</p>
+					<span class="qr-code" set:html={qr} />
+				</div>
 			</footer>
 		</div>
 	</div>
@@ -288,6 +291,16 @@ const rubriques = ordre.map((titre) => carte.find((rubrique) => rubrique.titre =
 		font-size: 3.2mm;
 		font-style: italic;
 		opacity: 0.8;
+	}
+
+	/* Comme sur les affiches d'événements : la phrase à gauche du QR code vers Facebook */
+	.qr {
+		display: flex;
+		flex: none;
+		align-items: center;
+		gap: 3mm;
+		text-align: right;
+		font-weight: 800;
 	}
 
 	.qr-code {
