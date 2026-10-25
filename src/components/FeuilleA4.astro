@@ -1,0 +1,161 @@
+---
+// Feuille A4 prête à imprimer (ou à enregistrer en PDF depuis le navigateur), sans mise en page imposée :
+// la page qui l'utilise pose son contenu dans le slot et le met en forme (styles :global préfixés par sa classe).
+// Même comportement que les affiches d'événements : barre d'outils à l'écran, aperçu dans une iframe, export « ?format=a4 ».
+import '@fontsource/luckiest-guy/latin-400.css';
+import '@fontsource/nunito/latin-400.css';
+import '@fontsource/nunito/latin-700.css';
+import '@fontsource/nunito/latin-700-italic.css';
+import '@fontsource/nunito/latin-800.css';
+import '../styles/global.css';
+import { site } from '../lib/site';
+import { url } from '../lib/url';
+
+interface Props {
+	titre: string;
+	class?: string;
+}
+
+const { titre, class: classe } = Astro.props;
+---
+
+<!doctype html>
+<html lang="fr">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="robots" content="noindex" />
+		<link rel="icon" type="image/png" href={url('favicon.png')} />
+		<title>{titre} · {site.nom}</title>
+		<script is:inline>
+			if (new URLSearchParams(location.search).get('format') === 'a4') {
+				document.documentElement.classList.add('export');
+			}
+			// Aperçu dans une iframe : la feuille seule remplit le cadre
+			if (window.self !== window.top) {
+				const racine = document.documentElement;
+				racine.classList.add('apercu');
+				const ajuster = () => racine.style.setProperty('--echelle', String(innerWidth / (210 * 96 / 25.4)));
+				ajuster();
+				addEventListener('resize', ajuster);
+			}
+		</script>
+	</head>
+	<body>
+		<p class="outils">
+			<button type="button" class="bouton" onclick="print()">Imprimer / Enregistrer en PDF</button>
+			<span>A4, marges «&nbsp;aucune&nbsp;», graphiques d'arrière-plan activés.</span>
+		</p>
+
+		<article class:list={['feuille', classe]}>
+			<slot />
+		</article>
+	</body>
+</html>
+
+<style>
+	@page {
+		size: A4;
+		margin: 0;
+	}
+
+	html {
+		background: #d9d2c3;
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+	}
+
+	body {
+		display: block;
+		min-height: 0;
+		padding: 6mm 0;
+	}
+
+	.outils {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		gap: 0.5rem 1rem;
+		margin: 0 1rem 6mm;
+		font-size: 0.9rem;
+	}
+
+	.outils .bouton {
+		cursor: pointer;
+	}
+
+	.feuille {
+		position: relative;
+		isolation: isolate;
+		overflow: hidden;
+		width: 210mm;
+		height: 297mm;
+		margin: 0 auto;
+		box-shadow: 0 2mm 8mm rgb(0 0 0 / 0.25);
+	}
+
+	@media screen and (max-width: 210mm) {
+		.feuille {
+			zoom: calc(100vw / 220mm);
+		}
+	}
+
+	:global(html.apercu),
+	:global(html.export) {
+		overflow: hidden;
+		background: none;
+	}
+
+	:global(.apercu) body,
+	:global(.export) body {
+		padding: 0;
+	}
+
+	:global(.apercu) .outils,
+	:global(.export) .outils {
+		display: none;
+	}
+
+	:global(.apercu) .feuille {
+		zoom: var(--echelle);
+		box-shadow: none;
+	}
+
+	:global(.export) .feuille {
+		zoom: 1;
+		margin: 0;
+		box-shadow: none;
+	}
+
+	@media print {
+		:global(.apercu) .feuille {
+			zoom: 1;
+		}
+
+		html,
+		body {
+			background: none;
+			padding: 0;
+		}
+
+		.outils {
+			display: none;
+		}
+
+		.feuille {
+			margin: 0;
+			box-shadow: none;
+		}
+	}
+
+	/* :where() = priorité nulle, pour que chaque affiche fixe ensuite ses propres marges */
+	:global(:where(.feuille) :where(p, h1, h2, h3, ul, li)) {
+		margin: 0;
+	}
+
+	:global(:where(.feuille) :where(ul)) {
+		list-style: none;
+		padding: 0;
+	}
+</style>

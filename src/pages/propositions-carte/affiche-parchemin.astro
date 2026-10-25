@@ -1,0 +1,303 @@
+---
+// Proposition d'affiche n° 2 : « Parchemin », la carte comme une page de grimoire de taverne.
+// Toute la feuille est un parchemin (même texture que les images des affiches), posé sur un cadre brun,
+// l'encre est brune, les prix en rose foncé, les accents en vert (vert foncé pour le texte, lisible sur le parchemin).
+import { Image } from 'astro:assets';
+import FeuilleA4 from '../../components/FeuilleA4.astro';
+import RubriqueCarte from '../../components/RubriqueCarte.astro';
+import Embleme from '../../components/Embleme.astro';
+import logo from '../../assets/logo.png';
+import { carte, mentionsAlcool } from '../../lib/carte';
+import { site } from '../../lib/site';
+import { qrSvg } from '../../lib/qr';
+
+const qr = await qrSvg(site.reseaux.facebook, '#3e2416', '#f3e2b6');
+const { rue, codePostal, ville } = site.adresse;
+// Rangées alignées : boissons chaudes | bières, softs | grignotage, puis les crêpes sur toute la largeur
+const ordre = ['Boissons chaudes', 'Bières', 'Softs', 'Grignotage', 'Crêpes'];
+const rubriques = ordre.map((titre) => carte.find((rubrique) => rubrique.titre === titre)).filter((r) => r !== undefined);
+---
+
+<FeuilleA4 titre="Carte · Parchemin" class="parchemin">
+	<div class="ombre">
+		<div class="page">
+			<Embleme class="filigrane" />
+
+			<header class="entete">
+				<Image src={logo} alt="" width={300} height={300} class="logo" />
+				<p class="nom-site">{site.nom}</p>
+				<p class="accroche-site">{site.devise}</p>
+			</header>
+
+			<h1>Carte de la Taverne</h1>
+			<p class="separateur" aria-hidden="true"><span></span><Embleme /><span></span></p>
+
+			<div class="colonnes">
+				{rubriques.map((rubrique) => <RubriqueCarte rubrique={rubrique} />)}
+			</div>
+
+			<footer class="pied">
+				<p>
+					{rue}, {codePostal} {ville}<br />
+					<span class="mentions">{mentionsAlcool.join(' ')}</span>
+				</p>
+				<span class="qr-code" set:html={qr} />
+			</footer>
+		</div>
+	</div>
+</FeuilleA4>
+
+<style>
+	/* Cadre brun autour du parchemin (sans fond perdu, rien d'important ne touche le bord) */
+	:global(.parchemin) {
+		--vert-fonce: #4b7a1c;
+		padding: 7mm;
+		background: var(--brun);
+	}
+
+	/* Ombre portée qui suit le contour déchiré */
+	.ombre {
+		height: 100%;
+		filter: drop-shadow(1mm 1.5mm 0 rgb(0 0 0 / 0.45));
+	}
+
+	.page {
+		position: relative;
+		isolation: isolate;
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		padding: 9mm 14mm 8mm;
+		color: #4a2a12;
+		background: var(--parchemin-fond);
+		background-size: var(--parchemin-taille);
+		box-shadow: var(--parchemin-bords);
+		clip-path: var(--parchemin-contour);
+	}
+
+	.page > :global(.filigrane) {
+		position: absolute;
+		z-index: -1;
+		left: 50%;
+		top: 55%;
+		width: 140mm;
+		color: #4a2a12;
+		opacity: 0.07;
+		transform: translate(-50%, -50%) rotate(-8deg);
+	}
+
+	.entete {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+	}
+
+	.logo {
+		width: 21mm;
+		height: 21mm;
+		border-radius: 50%;
+		border: 1mm solid var(--vert);
+		box-shadow: 0 0 0 0.5mm #4a2a12;
+	}
+
+	.nom-site {
+		margin-top: 2mm;
+		font-family: var(--font-titre);
+		font-size: 8mm;
+		line-height: 1;
+	}
+
+	.accroche-site {
+		font-size: 4.5mm;
+		font-weight: 700;
+		font-style: italic;
+		color: var(--rose-fonce);
+	}
+
+	h1 {
+		margin: 4mm 0 0;
+		font-size: 13mm;
+		white-space: nowrap;
+		line-height: 1;
+		text-align: center;
+		color: var(--brun);
+		text-shadow: 0.9mm 0.9mm 0 var(--vert);
+	}
+
+	/* Filets de part et d'autre de l'emblème */
+	.separateur {
+		display: flex;
+		align-items: center;
+		gap: 4mm;
+		margin: 2mm 25mm 0;
+		color: var(--vert-fonce);
+	}
+
+	.separateur span {
+		flex: 1;
+		border-top: 0.8mm solid currentColor;
+	}
+
+	.separateur :global(.embleme) {
+		width: 11mm;
+	}
+
+	/* Grille de deux colonnes : les rubriques d'une même rangée ont leur titre à la même hauteur.
+	   Les rangées se répartissent la hauteur disponible. */
+	.colonnes {
+		flex: 1;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		align-content: space-evenly;
+		align-items: start;
+		gap: 4mm 12mm;
+		padding-block: 3mm;
+	}
+
+	/* Les crêpes, en dernier, sur toute la largeur : la note à gauche, les deux crêpes côte à côte */
+	:global(.parchemin .rubrique:last-child) {
+		grid-column: 1 / -1;
+	}
+
+	/* La note des crêpes à côté du titre, sur le même trait vert */
+	:global(.parchemin .rubrique:last-child) {
+		display: grid;
+		grid-template-columns: auto 1fr;
+	}
+
+	:global(.parchemin .rubrique:last-child .note-rubrique) {
+		display: flex;
+		align-items: center;
+		margin-bottom: 2mm;
+		padding: 0 0 1mm 5mm;
+		border-bottom: 1mm solid var(--vert);
+	}
+
+	:global(.parchemin .rubrique:last-child .articles) {
+		grid-column: 1 / -1;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		column-gap: 12mm;
+	}
+
+	/* Titre de rubrique souligné d'un trait d'encre */
+	:global(.parchemin .titre-rubrique) {
+		display: flex;
+		align-items: center;
+		gap: 2mm;
+		margin-bottom: 2mm;
+		padding-bottom: 1mm;
+		font-size: 7mm;
+		color: var(--brun);
+		border-bottom: 1mm solid var(--vert);
+	}
+
+	:global(.parchemin .icone) {
+		font-size: 6mm;
+		transform: translateY(-0.5mm);
+	}
+
+	:global(.parchemin .note-rubrique) {
+		margin-bottom: 1.5mm;
+		font-size: 3.8mm;
+		font-style: italic;
+		font-weight: 700;
+		color: var(--rose-fonce);
+	}
+
+	/* Sous-catégorie (sans / avec alcool) : en rose, comme la note des crêpes */
+	:global(.parchemin .groupe) {
+		margin: 2mm 0 0.5mm;
+		font-size: 3.8mm;
+		font-style: italic;
+		font-weight: 700;
+		color: var(--rose-fonce);
+	}
+
+	:global(.parchemin .groupe:first-child) {
+		margin-top: 0;
+	}
+
+	:global(.parchemin .article) {
+		display: grid;
+		grid-template-columns: auto 1fr auto;
+		grid-template-areas:
+			'nom points prix'
+			'detail detail .';
+		align-items: baseline;
+		column-gap: 2mm;
+		padding-block: 1.1mm;
+		font-size: 5mm;
+		line-height: 1.25;
+	}
+
+	:global(.parchemin .nom) {
+		grid-area: nom;
+		font-weight: 800;
+	}
+
+	:global(.parchemin .format) {
+		margin-left: 1.5mm;
+		font-size: 3.6mm;
+		font-weight: 700;
+		opacity: 0.7;
+	}
+
+	:global(.parchemin .points) {
+		grid-area: points;
+		border-bottom: 0.6mm dotted rgb(74 42 18 / 0.5);
+	}
+
+	:global(.parchemin .prix) {
+		grid-area: prix;
+		font-weight: 800;
+		font-size: 5.8mm;
+		color: var(--rose-fonce);
+		white-space: nowrap;
+	}
+
+	/* Affiche à imprimer : pas de surlignage des prix à confirmer */
+	:global(.parchemin .prix.a-completer) {
+		padding: 0;
+		background: none;
+	}
+
+	:global(.parchemin .detail) {
+		grid-area: detail;
+		font-size: 3.8mm;
+		font-style: italic;
+		font-weight: 700;
+		opacity: 0.8;
+	}
+
+	.pied {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 6mm;
+		padding-top: 3mm;
+		font-size: 4mm;
+		font-weight: 700;
+		line-height: 1.4;
+		border-top: 0.8mm solid var(--vert-fonce);
+	}
+
+	.mentions {
+		font-size: 3.2mm;
+		font-style: italic;
+		opacity: 0.8;
+	}
+
+	.qr-code {
+		display: block;
+		flex: none;
+		width: 18mm;
+	}
+
+	.qr-code :global(svg) {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+</style>

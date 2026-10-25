@@ -1,0 +1,38 @@
+---
+// Une rubrique de la carte (titre, puis une ligne par article : nom, pointillés, prix ;
+// un intertitre .groupe avant chaque sous-catégorie).
+// Aucun style ici : chaque page ou affiche met la carte en forme à sa façon (classes .rubrique, .article, .prix…).
+import type { Rubrique } from '../lib/carte';
+
+interface Props {
+	rubrique: Rubrique;
+	/** Niveau du titre : h2 sur le site, h2 ou h3 selon la page */
+	niveau?: 'h2' | 'h3';
+}
+
+const { rubrique, niveau: Titre = 'h2' } = Astro.props;
+const { titre, icone, note, articles } = rubrique;
+---
+
+<section class="rubrique">
+	<Titre class="titre-rubrique"><span class="icone" aria-hidden="true">{icone}</span> <span>{titre}</span></Titre>
+	{note && <p class="note-rubrique">{note}</p>}
+	<ul class="articles">
+		{
+			articles.map(({ nom, format, detail, prix, aVerifier, groupe }, i) => (
+				<>
+				{groupe && groupe !== articles[i - 1]?.groupe && <li class="groupe">{groupe}</li>}
+				<li class="article">
+					<span class="nom">
+						{nom}
+						{format && <span class="format">{format}</span>}
+					</span>
+					<span class="points" aria-hidden="true" />
+					<strong class:list={['prix', aVerifier && 'a-completer']}>{prix}</strong>
+					{detail && <span class="detail">{detail}</span>}
+				</li>
+				</>
+			))
+		}
+	</ul>
+</section>
