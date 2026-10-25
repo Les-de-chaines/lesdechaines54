@@ -51,7 +51,7 @@ export const carte: Rubrique[] = [
 			{ groupe: 'Zéro degré, potion de lucidité', nom: 'Tourtel citron', format: '27,5 cl', prix: '2,50 €' },
 			{ groupe: 'Zéro degré, potion de lucidité', nom: 'Leffe blonde 0.0', format: '25 cl', prix: '2,50 €' },
 			{ groupe: 'Réservé aux aventuriers niveau 18+', nom: 'Leffe blonde', format: '25 cl', prix: '3 €' },
-			{ groupe: 'Réservé aux aventuriers niveau 18+', nom: 'La Chouffe blonde', format: '33 cl', prix: '3,50 €' },
+			{ groupe: 'Réservé aux aventuriers niveau 18+', nom: 'La Chouffe blonde', format: '33 cl', prix: '4 €' },
 		],
 	},
 	{
