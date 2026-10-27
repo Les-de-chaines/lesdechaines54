@@ -29,7 +29,7 @@ const grille = [
 	},
 	{
 		titre: 'Adhésion à la journée',
-		lignes: visiteurs.map(({ formule, prix }) => ({ formule, detail: '', prix: prix.replace(/ \/ jour$/, '') })),
+		lignes: visiteurs.map(({ formule, prix }) => ({ formule, detail: '', prix })),
 	},
 ];
 ---

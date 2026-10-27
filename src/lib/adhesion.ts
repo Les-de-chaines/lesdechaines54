@@ -1,5 +1,5 @@
 // Grille tarifaire : une seule source pour la page Infos pratiques et l'affiche de la guilde.
-// Adhésions annuelles, puis entrée à la journée pour les non-adhérents.
+// Adhésions annuelles, puis adhésions à la journée.
 
 export const adhesions = [
 	{ formule: 'Adhésion adulte', detail: '18 ans et plus', prix: '25 €' },
@@ -18,6 +18,6 @@ export const adhesions = [
 ];
 
 export const visiteurs = [
-	{ formule: 'Individuel', prix: '3 € / jour' },
-	{ formule: 'Famille', prix: '10 € / jour' },
+	{ formule: 'Individuel', prix: '3 €' },
+	{ formule: 'Famille', prix: '10 €' },
 ];
