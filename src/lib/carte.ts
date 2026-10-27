@@ -28,7 +28,7 @@ export const carte: Rubrique[] = [
 		articles: [
 			{ nom: 'Café', prix: '1 €' },
 			{ nom: 'Thé', prix: '1 €' },
-			{ nom: 'Chocolat chaud', format: '33 cl', prix: '2 €' },
+			{ nom: 'Chocolat chaud', prix: '2 €' },
 			{ nom: 'Chaï latte', detail: 'Au lait ou au lait d’amande', prix: '3 €' },
 		],
 	},
