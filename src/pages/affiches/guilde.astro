@@ -1,0 +1,348 @@
+---
+// Affiche de l'adhésion (l'esprit du café, en quelques mots) et de ses tarifs, sans date :
+// elle reste dans le carrousel toute l'année. Même parchemin que la carte de la taverne.
+// L'encadré « aucune obligation » vient du règlement intérieur (src/lib/reglement.ts), les tarifs de src/lib/adhesion.ts.
+import { Image } from 'astro:assets';
+import FeuilleA4 from '../../components/FeuilleA4.astro';
+import Embleme from '../../components/Embleme.astro';
+import logo from '../../assets/logo.png';
+import { sansObligation, enValeur } from '../../lib/reglement';
+import { adhesions, visiteurs } from '../../lib/adhesion';
+import { site } from '../../lib/site';
+import { qrSvg } from '../../lib/qr';
+
+// QR code vers l'adhésion en ligne quand elle existe, sinon vers Facebook
+const lienQr = site.helloasso || site.reseaux.facebook;
+const texteQr = site.helloasso ? 'Adhérez<br />en ligne&nbsp;!' : 'Suivez-nous<br />sur Facebook&nbsp;!';
+const qr = await qrSvg(lienQr, '#3e2416', '#f3e2b6');
+const { rue, codePostal, ville } = site.adresse;
+
+// Même présentation pour l'année et la journée : formule, précision, prix (la durée est dans le titre)
+const grille = [
+	{
+		titre: 'Adhésion annuelle',
+		lignes: adhesions.map(({ formule, detail, prix }) => ({
+			formule: formule.replace(/^Adhésion /, ''),
+			detail,
+			prix,
+		})),
+	},
+	{
+		titre: 'Adhésion à la journée',
+		lignes: visiteurs.map(({ formule, prix }) => ({ formule, detail: '', prix: prix.replace(/ \/ jour$/, '') })),
+	},
+];
+---
+
+<FeuilleA4 titre="Rejoignez la guilde" class="guilde">
+	<div class="ombre">
+		<div class="page">
+			<Embleme class="filigrane" />
+
+			<header class="entete">
+				<Image src={logo} alt="" width={300} height={300} class="logo" />
+				<p class="nom-site">{site.nom}</p>
+				<p class="accroche-site">{site.devise}</p>
+			</header>
+
+			<h1>Rejoignez la guilde</h1>
+			<p class="separateur" aria-hidden="true"><span></span><Embleme /><span></span></p>
+
+			<div class="esprit">
+				<p set:html={enValeur(
+					'Novice ou vétéran couvert de cicatrices, en famille, entre amis ou en solo, pour gagner ou juste pour rire : ici, on joue *ensemble*, dans la *bienveillance* et la bonne humeur.',
+				)} />
+			</div>
+
+			<div class="avantage">
+				<p class="titre-avantage">{sansObligation.titre}</p>
+				<p set:html={enValeur(sansObligation.texte)} />
+			</div>
+
+			<h2>Tarifs</h2>
+			<!-- Une seule grille pour les deux sections : formules, précisions et prix alignés en colonnes -->
+			<div class="tarifs">
+				{
+					grille.map(({ titre, lignes }) => (
+						<section>
+							<h3>{titre}</h3>
+							<ul>
+								{lignes.map(({ formule, detail, prix }) => (
+									<li class="ligne">
+										<span class="formule">{formule}</span>
+										<span class="detail">{detail}</span>
+										<span class="prix">{prix}</span>
+									</li>
+								))}
+							</ul>
+						</section>
+					))
+				}
+			</div>
+
+			<footer class="pied">
+				<p>
+					{rue}, {codePostal} {ville}<br />
+					<span class="mentions">Association loi 1901, animée par des bénévoles</span>
+				</p>
+				<div class="qr">
+					<p set:html={texteQr} />
+					<span class="qr-code" set:html={qr} />
+				</div>
+			</footer>
+		</div>
+	</div>
+</FeuilleA4>
+
+<style>
+	/* Cadre brun autour du parchemin, comme la carte */
+	:global(.guilde) {
+		--vert-fonce: #4b7a1c;
+		--encre: #4a2a12;
+		padding: 7mm;
+		background: var(--brun);
+	}
+
+	.ombre {
+		height: 100%;
+		filter: drop-shadow(1mm 1.5mm 0 rgb(0 0 0 / 0.45));
+	}
+
+	.page {
+		position: relative;
+		isolation: isolate;
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		padding: 9mm 13mm 7mm;
+		color: var(--encre);
+		background: var(--parchemin-fond);
+		background-size: var(--parchemin-taille);
+		box-shadow: var(--parchemin-bords);
+		clip-path: var(--parchemin-contour);
+	}
+
+	.page > :global(.filigrane) {
+		position: absolute;
+		z-index: -1;
+		left: 50%;
+		top: 55%;
+		width: 140mm;
+		color: var(--encre);
+		opacity: 0.07;
+		transform: translate(-50%, -50%) rotate(-8deg);
+	}
+
+	/* En-tête sur une ligne : logo à gauche du nom */
+	/* En-tête comme sur la carte : logo, nom, puis le slogan en rose */
+	.entete {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+	}
+
+	.logo {
+		width: 21mm;
+		height: 21mm;
+		border-radius: 50%;
+		border: 1mm solid var(--vert);
+		box-shadow: 0 0 0 0.5mm var(--encre);
+	}
+
+	.nom-site {
+		margin-top: 2mm;
+		font-family: var(--font-titre);
+		font-size: 8mm;
+		line-height: 1;
+	}
+
+	.accroche-site {
+		font-size: 4.5mm;
+		font-weight: 700;
+		font-style: italic;
+		color: var(--rose-fonce);
+	}
+
+	h1 {
+		margin: 4mm 0 0;
+		font-size: 12.5mm;
+		white-space: nowrap;
+		line-height: 1;
+		text-align: center;
+		color: var(--brun);
+		text-shadow: 0.9mm 0.9mm 0 var(--vert);
+	}
+
+	.separateur {
+		display: flex;
+		align-items: center;
+		gap: 4mm;
+		margin: 2mm 25mm 0;
+		color: var(--vert-fonce);
+	}
+
+	.separateur span {
+		flex: 1;
+		border-top: 0.8mm solid currentColor;
+	}
+
+	.separateur :global(.embleme) {
+		width: 10mm;
+	}
+
+	/* L'esprit du café : quelques lignes, centrées */
+	/* Il occupe la hauteur libre, son texte centré dedans */
+	.esprit {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		margin: 2mm 4mm;
+		text-align: center;
+		font-size: 5.6mm;
+		font-weight: 700;
+		line-height: 1.5;
+	}
+
+	.page :global(.valeur) {
+		font-style: normal;
+		font-weight: 800;
+		color: var(--rose-fonce);
+	}
+
+	h2 {
+		margin: 2mm 0 3mm;
+		padding-bottom: 0.5mm;
+		font-size: 8mm;
+		color: var(--brun);
+		border-bottom: 1mm solid var(--vert);
+	}
+
+	/* Tarifs : les deux sections l'une sous l'autre, dans une même grille à trois colonnes
+	   (sous-grilles) pour que formules, précisions et prix s'alignent de l'une à l'autre */
+	.tarifs {
+		display: grid;
+		grid-template-columns: max-content 1fr max-content;
+		column-gap: 6mm;
+		padding-bottom: 4mm;
+	}
+
+	.tarifs section,
+	.tarifs ul,
+	.ligne {
+		display: grid;
+		grid-column: 1 / -1;
+		grid-template-columns: subgrid;
+	}
+
+	.tarifs section + section {
+		margin-top: 4mm;
+	}
+
+	h3 {
+		grid-column: 1 / -1;
+		margin-bottom: 1mm;
+		font-size: 4.8mm;
+		font-style: italic;
+		font-weight: 700;
+		color: var(--rose-fonce);
+	}
+
+	/* Chaque ligne soulignée de pointillés, comme la carte */
+	.ligne {
+		align-items: baseline;
+		padding-block: 1.6mm;
+		border-bottom: 0.6mm dotted rgb(74 42 18 / 0.45);
+	}
+
+	.formule {
+		font-size: 5.6mm;
+		font-weight: 800;
+		line-height: 1.2;
+	}
+
+	.formule::first-letter {
+		text-transform: uppercase;
+	}
+
+	.detail {
+		font-size: 3.6mm;
+		font-style: italic;
+		font-weight: 700;
+		line-height: 1.25;
+		opacity: 0.8;
+	}
+
+	.prix {
+		font-weight: 800;
+		font-size: 6mm;
+		line-height: 1.2;
+		color: var(--rose-fonce);
+		text-align: right;
+		white-space: nowrap;
+	}
+
+	.titre-avantage {
+		margin-bottom: 1mm !important;
+		font-family: var(--font-titre);
+		font-weight: 400;
+		font-size: 5mm;
+		color: var(--vert-fonce);
+	}
+
+	/* Pleine largeur, entre le texte d'accueil et les tarifs */
+	.avantage {
+		margin: 0 0 4mm;
+		padding: 3mm 5mm;
+		text-align: center;
+		font-size: 4.3mm;
+		font-weight: 700;
+		line-height: 1.35;
+		border: 0.6mm dashed var(--vert-fonce);
+		border-radius: 2mm;
+	}
+
+	.pied {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 6mm;
+		padding-top: 3mm;
+		font-size: 4mm;
+		font-weight: 700;
+		line-height: 1.4;
+		border-top: 0.8mm solid var(--vert-fonce);
+	}
+
+	.pied strong {
+		color: var(--rose-fonce);
+	}
+
+	.mentions {
+		font-size: 3.2mm;
+		font-style: italic;
+		opacity: 0.8;
+	}
+
+	.qr {
+		display: flex;
+		flex: none;
+		align-items: center;
+		gap: 3mm;
+		text-align: right;
+		font-weight: 800;
+	}
+
+	.qr-code {
+		display: block;
+		flex: none;
+		width: 18mm;
+	}
+
+	.qr-code :global(svg) {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+</style>

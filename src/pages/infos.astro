@@ -6,6 +6,7 @@ import { site } from '../lib/site';
 import { Image } from 'astro:assets';
 import plan from '../assets/plan.png';
 import { url } from '../lib/url';
+import { adhesions, visiteurs } from '../lib/adhesion';
 
 const { rue, codePostal, ville } = site.adresse;
 const adresse = encodeURIComponent(`${rue}, ${codePostal} ${ville}`);
@@ -29,27 +30,6 @@ const acces = [
 	},
 ];
 
-// Grille tarifaire : adhésions annuelles, puis entrée à la journée pour les non-adhérents
-const adhesions = [
-	{ formule: 'Adhésion adulte', detail: '18 ans et plus', prix: '25 €' },
-	{
-		formule: 'Adhésion réduite et solidaire',
-		detail:
-			'Moins de 18 ans, étudiants, bénéficiaires de minima sociaux, ou si vous estimez ne pas avoir les moyens de payer 25 €',
-		prix: '15 €',
-	},
-	{ formule: 'Adhésion familiale', detail: 'Un ou deux adultes et les enfants mineurs qu\'ils accompagnent', prix: '50 €' },
-	{
-		formule: 'Adhésion de soutien',
-		detail: 'Si vous en avez les moyens et souhaitez nous donner un coup de pouce',
-		prix: '50 €',
-	},
-];
-
-const visiteurs = [
-	{ formule: 'Individuel', prix: '3 € / jour' },
-	{ formule: 'Famille', prix: '10 € / jour' },
-];
 ---
 
 <Layout titre="Infos pratiques" description={`Adresse, adhésion et contact de l'association ${site.nom} à ${ville}.`}>

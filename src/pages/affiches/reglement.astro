@@ -1,0 +1,279 @@
+---
+// Affiche du règlement intérieur, sans date : elle reste disponible toute l'année, comme la carte.
+// Même parchemin que la carte et l'affiche de la guilde. Les textes se modifient dans src/lib/reglement.ts.
+// Droits puis devoirs, l'un sous l'autre ; « aucune obligation de consommation » en encadré entre les deux.
+import { Image } from 'astro:assets';
+import FeuilleA4 from '../../components/FeuilleA4.astro';
+import Embleme from '../../components/Embleme.astro';
+import ListeRegles from '../../components/ListeRegles.astro';
+import logo from '../../assets/logo.png';
+import { titre, sousTitre, portee, droits, devoirs, sansObligation, sanction, enValeur } from '../../lib/reglement';
+import { site } from '../../lib/site';
+
+const { rue, codePostal, ville } = site.adresse;
+---
+
+<FeuilleA4 titre="Règlement intérieur" class="reglement-parchemin">
+	<div class="ombre">
+		<div class="page">
+			<Embleme class="filigrane" />
+
+			<header class="entete">
+				<Image src={logo} alt="" width={300} height={300} class="logo" />
+				<p class="nom-site">{site.nom}</p>
+				<p class="accroche-site">{site.devise}</p>
+			</header>
+
+			<h1>{titre}</h1>
+			<p class="separateur" aria-hidden="true"><span></span><Embleme /><span></span></p>
+			<p class="sous-titre"><strong>{sousTitre}</strong> · {portee}</p>
+
+			<div class="contenu">
+				<section>
+					<h2>{droits.titre}</h2>
+					<ListeRegles regles={droits.regles} />
+				</section>
+
+				<aside class="encart">
+					<p class="encart-titre">{sansObligation.titre}</p>
+					<p set:html={enValeur(sansObligation.texte)} />
+				</aside>
+
+				<section>
+					<h2>{devoirs.titre}</h2>
+					<ListeRegles regles={devoirs.regles} />
+					<p class="sanction"><strong>{sanction.titre}&nbsp;:</strong> {sanction.texte}</p>
+				</section>
+			</div>
+
+			<footer class="pied">
+				<p>{rue}, {codePostal} {ville}</p>
+				<p class="mentions">Association loi 1901, animée par des bénévoles</p>
+			</footer>
+		</div>
+	</div>
+</FeuilleA4>
+
+<style>
+	:global(.reglement-parchemin) {
+		--vert-fonce: #4b7a1c;
+		--encre: #4a2a12;
+		padding: 7mm;
+		background: var(--brun);
+	}
+
+	.ombre {
+		height: 100%;
+		filter: drop-shadow(1mm 1.5mm 0 rgb(0 0 0 / 0.45));
+	}
+
+	.page {
+		position: relative;
+		isolation: isolate;
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		padding: 8mm 15mm 6mm;
+		color: var(--encre);
+		background: var(--parchemin-fond);
+		background-size: var(--parchemin-taille);
+		box-shadow: var(--parchemin-bords);
+		clip-path: var(--parchemin-contour);
+	}
+
+	.page > :global(.filigrane) {
+		position: absolute;
+		z-index: -1;
+		left: 50%;
+		top: 55%;
+		width: 140mm;
+		color: var(--encre);
+		opacity: 0.07;
+		transform: translate(-50%, -50%) rotate(-8deg);
+	}
+
+	/* En-tête comme sur la carte : logo, nom, puis le slogan en rose */
+	.entete {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+	}
+
+	.logo {
+		width: 21mm;
+		height: 21mm;
+		border-radius: 50%;
+		border: 1mm solid var(--vert);
+		box-shadow: 0 0 0 0.5mm var(--encre);
+	}
+
+	.nom-site {
+		margin-top: 2mm;
+		font-family: var(--font-titre);
+		font-size: 8mm;
+		line-height: 1;
+	}
+
+	.accroche-site {
+		font-size: 4.5mm;
+		font-weight: 700;
+		font-style: italic;
+		color: var(--rose-fonce);
+	}
+
+	h1 {
+		margin: 4mm 0 0;
+		font-size: 13mm;
+		white-space: nowrap;
+		line-height: 1;
+		text-align: center;
+		color: var(--brun);
+		text-shadow: 0.9mm 0.9mm 0 var(--vert);
+	}
+
+	.separateur {
+		display: flex;
+		align-items: center;
+		gap: 4mm;
+		margin: 2mm 25mm 0;
+		color: var(--vert-fonce);
+	}
+
+	.separateur span {
+		flex: 1;
+		border-top: 0.8mm solid currentColor;
+	}
+
+	.separateur :global(.embleme) {
+		width: 10mm;
+	}
+
+	.sous-titre {
+		margin-top: 1.5mm !important;
+		font-size: 3.8mm;
+		font-style: italic;
+		text-align: center;
+	}
+
+	.sous-titre strong {
+		font-style: normal;
+		color: var(--rose-fonce);
+	}
+
+	.sanction {
+		margin-top: 3mm !important;
+		padding-top: 2mm;
+		font-size: 3.8mm;
+		font-style: italic;
+		line-height: 1.35;
+		border-top: 0.5mm dotted var(--vert-fonce);
+	}
+
+	.sanction strong {
+		font-style: normal;
+		font-weight: 800;
+		color: var(--rose-fonce);
+	}
+
+	.contenu {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-evenly;
+	}
+
+	h2 {
+		margin-bottom: 2.5mm;
+		padding-bottom: 0.5mm;
+		font-size: 6.5mm;
+		color: var(--brun);
+		border-bottom: 1mm solid var(--vert);
+	}
+
+	/* Puces en losange vert, comme des gemmes */
+	.contenu :global(.regle) {
+		position: relative;
+		padding-left: 6mm;
+		font-size: 4.05mm;
+		font-weight: 700;
+		line-height: 1.35;
+	}
+
+	.contenu :global(.regle + .regle) {
+		margin-top: 1mm;
+	}
+
+	.contenu :global(.regle.nouveau-groupe) {
+		margin-top: 2.2mm;
+	}
+
+	.contenu :global(.regle)::before {
+		content: '';
+		position: absolute;
+		left: 0.5mm;
+		top: 1.8mm;
+		width: 2.2mm;
+		height: 2.2mm;
+		background: var(--vert-fonce);
+		transform: rotate(45deg);
+	}
+
+	.contenu :global(.sous-regles) {
+		margin-top: 0.5mm;
+	}
+
+	.contenu :global(.sous-regles li) {
+		position: relative;
+		padding-left: 5mm;
+	}
+
+	.contenu :global(.sous-regles li)::before {
+		content: '◦';
+		position: absolute;
+		left: 1mm;
+		color: var(--vert-fonce);
+		font-weight: 800;
+	}
+
+	.contenu :global(.valeur) {
+		font-style: normal;
+		font-weight: 800;
+		color: var(--rose-fonce);
+	}
+
+	/* Même encadré que sur l'affiche d'adhésion (guilde.astro) */
+	.encart {
+		padding: 3mm 5mm;
+		font-size: 4.3mm;
+		font-weight: 700;
+		line-height: 1.35;
+		text-align: center;
+		border: 0.6mm dashed var(--vert-fonce);
+		border-radius: 2mm;
+	}
+
+	.encart-titre {
+		margin-bottom: 1mm !important;
+		font-family: var(--font-titre);
+		font-weight: 400;
+		font-size: 5mm;
+		color: var(--vert-fonce);
+	}
+
+	.pied {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		padding-top: 2.5mm;
+		font-size: 4mm;
+		font-weight: 700;
+		border-top: 0.8mm solid var(--vert-fonce);
+	}
+
+	.mentions {
+		font-size: 3.4mm;
+		font-style: italic;
+		opacity: 0.8;
+	}
+</style>

@@ -4,6 +4,7 @@ import Layout from '../layouts/Layout.astro';
 import Embleme from '../components/Embleme.astro';
 import { url } from '../lib/url';
 import { site } from '../lib/site';
+import { bureau, quetes } from '../lib/guilde';
 
 // Documents officiels : déposer les PDF dans public/documents/ avec ces noms de fichier.
 // Tant qu'un fichier est absent, la page affiche « bientôt disponible ».
@@ -12,37 +13,6 @@ const documents = [
 	{ titre: 'Règlement intérieur', fichier: 'reglement-interieur.pdf' },
 ].map((doc) => ({ ...doc, disponible: fs.existsSync(`public/documents/${doc.fichier}`) }));
 
-const bureau = [
-	{
-		embleme: '🍪',
-		prenom: 'Cindy',
-		titre: 'Fée des cookies',
-		texte:
-			"Point faible\u00a0: choisir. Le jeu, le personnage, et même le cookie, puisqu'elle en apporte trois fournées pour trouver la meilleure recette. Point fort\u00a0: un sac sans fond, où elle range les projets des autres en plus des siens. Elle apprend tout, partout, tout le temps… sauf les règles.",
-	},
-	{
-		embleme: '🧚',
-		prenom: 'Perrine',
-		titre: 'Fée des crêpes',
-		texte:
-			"Quête principale\u00a0: finir un projet. Quêtes secondaires\u00a0: les 47 autres déjà commencés. Une tête pleine d'idées, des projets plein les bras et des armoires de jeux qui rêvent de prendre l'air. Elle dit oui aux défis les plus fous et aux crêpes à toute heure.",
-	},
-	{
-		embleme: '🖌️',
-		croise: true, // deux pinceaux croisés : l'emoji est doublé en miroir
-		prenom: 'Nicolas',
-		titre: "Pinceau de l'Empereur",
-		texte:
-			"Pinceau dans une main, liste d'armée dans l'autre, il mène ses troupes à la bataille contre ses potes jusqu'à pas d'heure, entre deux matchs de Blood Bowl. Le trésor de la guilde est entre de bonnes mains\u00a0: il compte aussi bien ses pièces d'or que ses points d'armée.",
-	},
-	{
-		embleme: '💀',
-		prenom: 'Christophe',
-		titre: 'Nécron à manette',
-		texte:
-			"Némésis du Pinceau de l'Empereur, il affronte ses adversaires avec ses Nécrons\u00a0: immortels, mais jamais aidés par les dés. Gamer entre deux batailles, il a une arme secrète\u00a0: sa tchatche. Il vous convaincra de rejouer une partie avant que vous ayez fini de ranger.",
-	},
-];
 ---
 
 <Layout titre="Qui sommes-nous" description={`Présentation de l'association ${site.nom} : son objet, son fonctionnement, ses statuts.`}>
@@ -53,10 +23,11 @@ const bureau = [
 			<section class="carte guilde">
 				<h2 class="titre-embleme"><Embleme />La guilde</h2>
 				<ul class="quetes">
-					<li><strong>Quête de départ&nbsp;:</strong> trouver un espace sans enfants pour se retrouver et jouer.</li>
-					<li><strong>Quête secondaire&nbsp;:</strong> trouver de la place pour ranger les nouveaux jeux.</li>
-					<li><strong>Résultat&nbsp;:</strong> impossible.</li>
-					<li class="nouvelle-quete"><strong>Nouvelle quête&nbsp;:</strong> ouvrir un café jeux&nbsp;!</li>
+					{
+						quetes.map(({ etape, texte }, i) => (
+							<li class:list={{ 'nouvelle-quete': i === quetes.length - 1 }}><strong>{etape}&nbsp;:</strong> {texte}</li>
+						))
+					}
 				</ul>
 				<h3>Les membres fondateurs</h3>
 				<ul class="membres">

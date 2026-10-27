@@ -1,0 +1,29 @@
+---
+// Liste des règles du règlement intérieur (src/lib/reglement.ts), sans mise en forme imposée :
+// chaque affiche la stylise (.regle, .nouveau-groupe, .sous-regles, .valeur).
+import { enValeur, type Regle } from '../lib/reglement';
+
+interface Props {
+	regles: Regle[];
+	class?: string;
+}
+
+const { regles, class: classe } = Astro.props;
+---
+
+<ul class:list={['regles', classe]}>
+	{
+		regles.map(({ texte, sous, groupe }, i) => (
+			<li class:list={['regle', { 'nouveau-groupe': i > 0 && groupe !== regles[i - 1].groupe }]}>
+				<span set:html={enValeur(texte)} />
+				{sous && (
+					<ul class="sous-regles">
+						{sous.map((s) => (
+							<li set:html={enValeur(s)} />
+						))}
+					</ul>
+				)}
+			</li>
+		))
+	}
+</ul>
