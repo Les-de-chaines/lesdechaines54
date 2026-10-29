@@ -3,6 +3,7 @@
 // un intertitre .groupe avant chaque sous-catégorie).
 // Aucun style ici : chaque page ou affiche met la carte en forme à sa façon (classes .rubrique, .article, .prix…).
 import type { Rubrique } from '../lib/carte';
+import Feuille from './Feuille.astro';
 
 interface Props {
 	rubrique: Rubrique;
@@ -11,20 +12,28 @@ interface Props {
 }
 
 const { rubrique, niveau: Titre = 'h2' } = Astro.props;
-const { titre, icone, note, articles } = rubrique;
+const { titre, icone, note, feuille: noteFeuille, articles } = rubrique;
 ---
 
 <section class="rubrique">
 	<Titre class="titre-rubrique"><span class="icone" aria-hidden="true">{icone}</span> <span>{titre}</span></Titre>
-	{note && <p class="note-rubrique">{note}</p>}
+	{
+		note && (
+			<p class="note-rubrique">
+				{note}
+				{noteFeuille && <Feuille />}
+			</p>
+		)
+	}
 	<ul class="articles">
 		{
-			articles.map(({ nom, format, detail, prix, aVerifier, groupe }, i) => (
+			articles.map(({ nom, format, detail, prix, aVerifier, feuille, groupe }, i) => (
 				<>
 				{groupe && groupe !== articles[i - 1]?.groupe && <li class="groupe">{groupe}</li>}
 				<li class="article">
 					<span class="nom">
 						{nom}
+						{feuille && <Feuille />}
 						{format && <span class="format">{format}</span>}
 					</span>
 					<span class="points" aria-hidden="true" />

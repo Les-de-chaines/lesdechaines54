@@ -9,6 +9,8 @@ export interface Article {
 	detail?: string;
 	prix: string;
 	aVerifier?: boolean;
+	/** Petite feuille après le nom : existe en version végétale */
+	feuille?: boolean;
 	/** Sous-catégorie dans la rubrique (ex. « Sans alcool ») : un intertitre s'affiche quand elle change */
 	groupe?: string;
 }
@@ -18,6 +20,8 @@ export interface Rubrique {
 	icone: string;
 	/** Petite mention sous le titre de la rubrique */
 	note?: string;
+	/** Petite feuille après la note (légende des articles marqués `feuille`) */
+	feuille?: boolean;
 	articles: Article[];
 }
 
@@ -25,11 +29,13 @@ export const carte: Rubrique[] = [
 	{
 		titre: 'Boissons chaudes',
 		icone: '☕',
+		note: 'Lait végétal sur demande.',
+		feuille: true,
 		articles: [
 			{ nom: 'Café', prix: '1 €' },
 			{ nom: 'Thé', prix: '1 €' },
-			{ nom: 'Chocolat chaud', prix: '2 €' },
-			{ nom: 'Chaï latte', detail: 'Au lait ou au lait d’amande', prix: '3 €' },
+			{ nom: 'Chocolat chaud', prix: '2 €', feuille: true },
+			{ nom: 'Chaï latte', prix: '3 €', feuille: true },
 		],
 	},
 	{
@@ -40,8 +46,7 @@ export const carte: Rubrique[] = [
 			{ nom: 'Eau pétillante', prix: '1 €' },
 			{ nom: 'Jus de fruits', format: '25 cl', detail: 'Pomme, fraise, mangue', prix: '1,50 €' },
 			{ nom: 'Soda', format: '33 cl', detail: 'Coca, Pepsi Zero, Lipton, Oasis', prix: '2 €' },
-			// Prix selon le prix d'achat
-			{ nom: 'Symples', detail: 'Infusion pétillante', prix: '3 €', aVerifier: true },
+			{ nom: 'Symple, ginger beer', detail: 'Infusion pétillante', prix: '3,50 €' },
 		],
 	},
 	{
@@ -60,6 +65,7 @@ export const carte: Rubrique[] = [
 		articles: [
 			{ nom: 'Cookie', prix: '1 €' },
 			{ nom: 'Chips', prix: '1 €' },
+			{ nom: 'Compote', prix: '1 €' },
 			{ nom: 'Bonbons', detail: '3 petits sachets', prix: '2 €' },
 		],
 	},

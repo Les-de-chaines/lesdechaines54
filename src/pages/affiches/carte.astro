@@ -210,6 +210,11 @@ const rubriques = ordre.map((titre) => carte.find((rubrique) => rubrique.titre =
 		color: var(--rose-fonce);
 	}
 
+	/* Feuille « version végétale » : en rose, comme celle de la note */
+	:global(.parchemin .nom .picto-vegetal) {
+		color: var(--rose-fonce);
+	}
+
 	/* Sous-catégorie (sans / avec alcool) : en rose, comme la note des crêpes */
 	:global(.parchemin .groupe) {
 		margin: 2mm 0 0.5mm;
