@@ -67,6 +67,9 @@ jobs:
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
         working-directory: ${{ env.BUILD_PATH }}
       - name: Build with Astro
+        # Adresse iCal secrète de l'agenda Google, pour les affiches agenda (src/lib/agenda.ts)
+        env:
+          AGENDA_ICS: ${{ secrets.AGENDA_ICS }}
         run: |
           ${{ steps.detect-package-manager.outputs.runner }} astro build \
             --site "${{ steps.pages.outputs.origin }}" \

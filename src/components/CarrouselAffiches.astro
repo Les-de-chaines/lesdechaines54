@@ -37,54 +37,60 @@ const affiches = fs
 	.sort((a, b) => a.date.localeCompare(b.date));
 ---
 
-{
-	affiches.length > 0 && (
-		<section class="carrousel-affiches" aria-roledescription="carrousel" aria-label="Affiches de nos événements">
-			<ul class="piste" tabindex="0">
-				{affiches.map(({ date, lien, titre, jour }) => (
-					<li class="affiche" data-date={date}>
-						<div class="vignette">
-							<iframe src={lien} loading="lazy" tabindex="-1" aria-hidden="true" title="" />
-							<a href={lien} class="ouvrir" data-titre={`${titre}, ${jour}`} aria-label={`${titre}, ${jour} : voir l'affiche`} />
-							<span class="termine">Terminé</span>
-						</div>
-						<p class="legende">
-							<strong>{titre}</strong>
-							<span>{jour}</span>
-						</p>
-					</li>
-				))}
-			</ul>
+<div class="bloc-affiches">
+	{
+		affiches.length > 0 && (
+			<section
+				class="carrousel-affiches"
+				aria-roledescription="carrousel"
+				aria-label="Affiches de nos événements"
+			>
+				<ul class="piste" tabindex="0">
+					{affiches.map(({ date, lien, titre, jour }) => (
+						<li class="affiche" data-date={date}>
+							<div class="vignette">
+								<iframe src={lien} loading="lazy" tabindex="-1" aria-hidden="true" title="" />
+								<a href={lien} class="ouvrir" data-titre={`${titre}, ${jour}`} aria-label={`${titre}, ${jour} : voir l'affiche`} />
+								<span class="termine">Terminé</span>
+							</div>
+							<p class="legende">
+								<strong>{titre}</strong>
+								<span>{jour}</span>
+							</p>
+						</li>
+					))}
+				</ul>
 
-			<button class="fleche precedent" type="button" aria-label="Affiche précédente" hidden>‹</button>
-			<button class="fleche suivant" type="button" aria-label="Affiche suivante" hidden>›</button>
-			<div class="points" hidden>
-				{affiches.map(({ titre }, i) => (
-					<button type="button" aria-label={`Aller à l'affiche ${i + 1} : ${titre}`} data-index={i} />
-				))}
-			</div>
-		</section>
-	)
-}
+				<button class="fleche precedent" type="button" aria-label="Affiche précédente" hidden>‹</button>
+				<button class="fleche suivant" type="button" aria-label="Affiche suivante" hidden>›</button>
+				<div class="points" hidden>
+					{affiches.map(({ titre }, i) => (
+						<button type="button" aria-label={`Aller à l'affiche ${i + 1} : ${titre}`} data-index={i} />
+					))}
+				</div>
+			</section>
+		)
+	}
 
-{
-	affiches.length > 0 && (
-		/* Fenêtre qui affiche l'affiche en grand, sans quitter la page (sans JS, le lien ouvre la page de l'affiche) */
-		<dialog class="fenetre-affiche" aria-label="Affiche">
-			<div class="cadre-fenetre">
-				<iframe title="" />
-				<button class="outil telecharger" type="button" aria-label="Télécharger l'affiche en PDF" title="Télécharger en PDF">
-					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 17v3h16v-3" /></svg>
-				</button>
-				<button class="outil fermer" type="button" aria-label="Fermer" title="Fermer">
-					<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
-				</button>
-			</div>
-			<button class="fleche-fenetre avant" type="button" aria-label="Affiche précédente">‹</button>
-			<button class="fleche-fenetre apres" type="button" aria-label="Affiche suivante">›</button>
-		</dialog>
-	)
-}
+	{
+		affiches.length > 0 && (
+			/* Fenêtre qui affiche l'affiche en grand, sans quitter la page (sans JS, le lien ouvre la page de l'affiche) */
+			<dialog class="fenetre-affiche" aria-label="Affiche">
+				<div class="cadre-fenetre">
+					<iframe title="" />
+					<button class="outil telecharger" type="button" aria-label="Télécharger l'affiche en PDF" title="Télécharger en PDF">
+						<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 17v3h16v-3" /></svg>
+					</button>
+					<button class="outil fermer" type="button" aria-label="Fermer" title="Fermer">
+						<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
+					</button>
+				</div>
+				<button class="fleche-fenetre avant" type="button" aria-label="Affiche précédente">‹</button>
+				<button class="fleche-fenetre apres" type="button" aria-label="Affiche suivante">›</button>
+			</dialog>
+		)
+	}
+</div>
 
 <script>
 	document.querySelectorAll<HTMLElement>('.carrousel-affiches').forEach((carrousel) => {
@@ -127,7 +133,8 @@ const affiches = fs
 	// Fenêtre : un clic sur une vignette ouvre l'affiche en grand au lieu de quitter la page
 	document.querySelectorAll<HTMLDialogElement>('.fenetre-affiche').forEach((fenetre) => {
 		const cadre = fenetre.querySelector('iframe')!;
-		const liens = [...document.querySelectorAll<HTMLAnchorElement>('.carrousel-affiches .ouvrir')];
+		// Seulement les vignettes du même carrousel, si la page en a plusieurs
+		const liens = [...fenetre.closest('.bloc-affiches')!.querySelectorAll<HTMLAnchorElement>('.carrousel-affiches .ouvrir')];
 		const avant = fenetre.querySelector<HTMLButtonElement>('.avant')!;
 		const apres = fenetre.querySelector<HTMLButtonElement>('.apres')!;
 		let courante = 0;

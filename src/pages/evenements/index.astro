@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import CarrouselAffiches from '../../components/CarrouselAffiches.astro';
+import AgendaSite from '../../components/AgendaSite.astro';
 import { site } from '../../lib/site';
 ---
 
@@ -10,6 +11,11 @@ import { site } from '../../lib/site';
 		<p>Soirées jeux, tournois, ateliers peinture… Retrouvez ici tous nos prochains rendez-vous.</p>
 
 		<CarrouselAffiches />
+
+		<h2>Agenda de la taverne</h2>
+		<p>Les créneaux de jeux du mois, en un coup d'œil.</p>
+
+		<AgendaSite />
 
 		<div class="carte">
 			<p>

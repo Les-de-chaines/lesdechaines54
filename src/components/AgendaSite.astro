@@ -1,0 +1,478 @@
+---
+// Agenda de la taverne sur le site (page Événements) : les mêmes mois et créneaux que les affiches agenda-AAAA-MM
+// (src/lib/agenda.ts), mais dessinés pour le site : une carte, un mois à la fois avec des flèches pour changer de mois.
+// Grand écran : calendrier mensuel. Mobile : la liste des jours où la taverne est ouverte.
+// Sans JavaScript, tous les mois s'affichent les uns sous les autres.
+import fs from 'node:fs';
+import Embleme from './Embleme.astro';
+import { activites, horaire, moisAgenda, moisPublies, nomsJours, precision, type Activite, type Creneau } from '../lib/agenda';
+
+const mois = await Promise.all(moisPublies(fs.readdirSync('src/pages/affiches')).map(async (m) => ({ cle: m, ...(await moisAgenda(m)) })));
+
+const majuscule = (texte: string) => texte.charAt(0).toUpperCase() + texte.slice(1);
+const nomJour = (date: string) =>
+	new Intl.DateTimeFormat('fr-FR', { weekday: 'short', timeZone: 'UTC' }).format(new Date(`${date}T12:00:00Z`)).replace('.', '');
+const dateCourte = (date: string) =>
+	new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(new Date(`${date}T12:00:00Z`));
+
+// Fond d'une pastille : une couleur par activité, en bandes nettes coupées en biais
+const fond = (liste: Activite[]) =>
+	`--fond: ${liste.map((a, i) => `var(--${a}) ${(i * 100) / liste.length}% ${((i + 1) * 100) / liste.length}%`).join(', ')}`;
+const nom = (c: Creneau) => c.activites.map((a) => (a === 'special' ? '' : activites[a].nom)).filter(Boolean).join(' + ');
+---
+
+{
+	mois.length > 0 && (
+		<section class="agenda-site carte avec-filigrane" aria-label="Agenda de la taverne">
+			<Embleme class="filigrane" />
+
+			<nav class="navigation" aria-label="Changer de mois" hidden>
+				<button type="button" class="fleche precedent" aria-label="Mois précédent">‹</button>
+				<p class="mois-courant" aria-live="polite" />
+				<button type="button" class="fleche suivant" aria-label="Mois suivant">›</button>
+			</nav>
+
+			{mois.map(({ cle, nomMois, annee, cases, parJour, dateDuJour, periode, vacancesDuMois, presentes, aConfirmer, duMois }) => (
+				<div class="mois" data-mois={cle} data-titre={`${majuscule(nomMois)} ${annee}`}>
+					<h3 class="titre-mois">
+						{majuscule(nomMois)} {annee}
+					</h3>
+
+					{vacancesDuMois.map((v) => (
+						<p class="annonce-vacances">
+							<span>{v.emoji}</span>
+							<strong>{v.nom}</strong> du {dateCourte(v.debut)} au {dateCourte(v.fin)}&nbsp;: {v.mention.toLowerCase()}&nbsp;!
+						</p>
+					))}
+
+					{/* Grand écran : le calendrier du mois */}
+					<div class="grille-mois" aria-hidden="true">
+						{nomsJours.map((jour) => (
+							<p class="nom-jour">{jour}</p>
+						))}
+						{cases.map((jour) => {
+							const liste = jour ? (parJour.get(jour) ?? []) : [];
+							return (
+								<div
+									class:list={['jour', { vide: !jour, ouvert: liste.length > 0, vacances: periode(jour) }]}
+									data-date={jour ? dateDuJour(jour) : undefined}
+								>
+									{jour && <span class="numero">{jour}</span>}
+									{liste.map((c) => (
+										<p class:list={['creneau', { incertain: c.aConfirmer }]} style={fond(c.activites)}>
+											<span class="horaire">
+												{c.activites.map((a) => activites[a].emoji).join('')} {horaire(c)}
+												{c.aConfirmer && '*'}
+											</span>
+											<span class="quoi">{[nom(c), precision(c)].filter(Boolean).join(' · ')}</span>
+										</p>
+									))}
+								</div>
+							);
+						})}
+					</div>
+
+					{/* Mobile (et lecteurs d'écran) : les jours d'ouverture, en liste */}
+					<ol class="liste-jours">
+						{[...parJour.entries()].map(([jour, liste]) => (
+							<li class="jour-liste" data-date={dateDuJour(jour)}>
+								<p class="date">
+									<span>{nomJour(dateDuJour(jour))}</span>
+									<strong>{jour}</strong>
+								</p>
+								<ul>
+									{liste.map((c) => (
+										<li class:list={['creneau', { incertain: c.aConfirmer }]} style={fond(c.activites)}>
+											<span class="horaire">
+												{c.activites.map((a) => activites[a].emoji).join('')} {horaire(c)}
+												{c.aConfirmer && '*'}
+											</span>
+											<span class="quoi">{[nom(c), precision(c)].filter(Boolean).join(' · ')}</span>
+										</li>
+									))}
+								</ul>
+							</li>
+						))}
+						{duMois.length === 0 && <li class="rien">Programme à venir&nbsp;: suivez-nous pour les nouveautés&nbsp;!</li>}
+					</ol>
+
+					<footer class="pied-mois">
+						<ul class="legende">
+							{presentes.map((a) => (
+								<li>
+									<span class="pastille" style={fond([a])}>{activites[a].emoji}</span>
+									{activites[a].nom}
+								</li>
+							))}
+						</ul>
+						<p class="notes">
+							{aConfirmer && <>* horaire à confirmer</>}
+						</p>
+					</footer>
+				</div>
+			))}
+		</section>
+	)
+}
+
+<script>
+	document.querySelectorAll<HTMLElement>('.agenda-site').forEach((agenda) => {
+		const mois = [...agenda.querySelectorAll<HTMLElement>('.mois')];
+		const navigation = agenda.querySelector<HTMLElement>('.navigation')!;
+		const titre = agenda.querySelector<HTMLElement>('.mois-courant')!;
+		const precedent = agenda.querySelector<HTMLButtonElement>('.precedent')!;
+		const suivant = agenda.querySelector<HTMLButtonElement>('.suivant')!;
+
+		// Jours passés estompés, aujourd'hui entouré
+		const aujourdhui = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Paris' }).format(new Date());
+		agenda.querySelectorAll<HTMLElement>('[data-date]').forEach((jour) => {
+			jour.classList.toggle('passe', jour.dataset.date! < aujourdhui);
+			jour.classList.toggle('aujourdhui', jour.dataset.date === aujourdhui);
+		});
+
+		// Un mois à la fois : on ouvre sur le mois en cours (ou le prochain, ou le dernier publié)
+		let courant = mois.findIndex((m) => m.dataset.mois! >= aujourdhui.slice(0, 7));
+		if (courant < 0) courant = mois.length - 1;
+		const afficher = (i: number) => {
+			courant = i;
+			mois.forEach((m, j) => (m.hidden = j !== i));
+			titre.textContent = mois[i].dataset.titre!;
+			precedent.disabled = i === 0;
+			suivant.disabled = i === mois.length - 1;
+		};
+		precedent.addEventListener('click', () => afficher(courant - 1));
+		suivant.addEventListener('click', () => afficher(courant + 1));
+		navigation.hidden = false;
+		agenda.classList.add('avec-navigation');
+		afficher(courant);
+	});
+</script>
+
+<style>
+	.agenda-site {
+		--jeux: #4c7a18;
+		--figurines: var(--rose-fonce);
+		--bloodbowl: var(--brun);
+		--special: #b8860b;
+		margin-block: 1.5rem;
+		padding: 1.25rem;
+	}
+
+	/* Navigation : flèches rondes du carrousel, nom du mois en titre */
+	.navigation {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 1rem;
+		margin-bottom: 1rem;
+	}
+
+	.navigation[hidden],
+	.mois[hidden] {
+		display: none;
+	}
+
+	.mois-courant {
+		min-width: 12ch;
+		margin: 0;
+		font-family: var(--font-titre);
+		font-size: clamp(1.5rem, 4vw, 2rem);
+		line-height: 1.1;
+		text-align: center;
+	}
+
+	/* Avec la navigation, son titre remplace celui de chaque mois */
+	.avec-navigation .titre-mois {
+		display: none;
+	}
+
+	.titre-mois {
+		text-align: center;
+	}
+
+	.mois + .mois {
+		margin-top: 2.5rem;
+	}
+
+	.fleche {
+		width: 2.5rem;
+		height: 2.5rem;
+		display: grid;
+		place-items: center;
+		padding: 0 0 0.2rem;
+		font-size: 1.8rem;
+		line-height: 1;
+		color: var(--brun);
+		background: var(--creme);
+		border: 3px solid var(--brun);
+		border-radius: 50%;
+		box-shadow: 2px 2px 0 var(--brun);
+		cursor: pointer;
+	}
+
+	.fleche:hover:not(:disabled) {
+		color: var(--blanc);
+		background: var(--rose);
+	}
+
+	.fleche:disabled {
+		opacity: 0.3;
+		cursor: default;
+	}
+
+	.annonce-vacances {
+		margin: 0 auto 1rem;
+		padding: 0.5rem 1rem;
+		width: fit-content;
+		max-width: 100%;
+		text-align: center;
+		color: var(--blanc);
+		background: var(--rose-fonce);
+		border-radius: 999px;
+		box-shadow: 3px 3px 0 var(--brun);
+	}
+
+	.annonce-vacances strong {
+		font-weight: 800;
+	}
+
+	/* Pastille d'un créneau : couleur de l'activité, coupée en biais quand il y en a deux */
+	.creneau {
+		display: flex;
+		flex-direction: column;
+		margin: 0;
+		padding: 0.3rem 0.5rem;
+		color: var(--blanc);
+		line-height: 1.2;
+		background: linear-gradient(110deg, var(--fond));
+		border-radius: 0.5rem;
+	}
+
+	.creneau.incertain {
+		outline: 2px dashed var(--blanc);
+		outline-offset: -4px;
+	}
+
+	.horaire {
+		font-size: 0.85rem;
+		font-weight: 800;
+		white-space: nowrap;
+	}
+
+	.quoi {
+		font-size: 0.75rem;
+		font-weight: 700;
+		opacity: 0.95;
+	}
+
+	/* --- Grand écran : calendrier --- */
+	.grille-mois {
+		display: none;
+	}
+
+	@media (min-width: 48rem) {
+		.grille-mois {
+			display: grid;
+			grid-template-columns: repeat(7, minmax(0, 1fr));
+			gap: 0.4rem;
+		}
+
+		.liste-jours {
+			/* Gardée pour les lecteurs d'écran, la grille étant masquée pour eux */
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+			clip-path: inset(50%);
+		}
+	}
+
+	.nom-jour {
+		margin: 0;
+		padding: 0.25rem 0 0.1rem;
+		font-family: var(--font-titre);
+		font-size: 0.95rem;
+		letter-spacing: 0.04em;
+		text-align: center;
+		color: var(--creme);
+		background: var(--brun);
+		border-radius: 0.5rem;
+	}
+
+	.jour {
+		display: flex;
+		flex-direction: column;
+		gap: 0.3rem;
+		min-height: 6.5rem;
+		padding: 0.35rem;
+		background: var(--creme);
+		border: 2px solid rgb(62 36 22 / 0.15);
+		border-radius: 0.6rem;
+	}
+
+	.jour.vide {
+		background: none;
+		border-style: dashed;
+		border-color: rgb(62 36 22 / 0.1);
+	}
+
+	.jour.ouvert {
+		background: var(--blanc);
+		border-color: var(--brun);
+		box-shadow: 2px 2px 0 var(--vert);
+	}
+
+	.jour.vacances {
+		background: repeating-linear-gradient(-45deg, rgb(214 51 122 / 0.1) 0 6px, transparent 6px 12px), var(--creme);
+		border-color: rgb(176 36 98 / 0.35);
+	}
+
+	.jour.vacances.ouvert {
+		background: repeating-linear-gradient(-45deg, rgb(214 51 122 / 0.1) 0 6px, transparent 6px 12px), var(--blanc);
+		border-color: var(--brun);
+	}
+
+	.numero {
+		font-family: var(--font-titre);
+		font-size: 1.05rem;
+		line-height: 1;
+		opacity: 0.45;
+	}
+
+	.ouvert .numero {
+		color: var(--rose-fonce);
+		opacity: 1;
+	}
+
+	.jour.passe {
+		opacity: 0.45;
+	}
+
+	.jour.aujourdhui {
+		border-color: var(--rose);
+		box-shadow: 0 0 0 2px var(--rose);
+	}
+
+	.jour.aujourdhui .numero::after {
+		content: ' · aujourd’hui';
+		font-family: var(--font-texte);
+		font-size: 0.7rem;
+		font-weight: 800;
+		color: var(--rose-fonce);
+		opacity: 1;
+	}
+
+	/* --- Mobile : liste des jours d'ouverture --- */
+	.liste-jours {
+		display: flex;
+		flex-direction: column;
+		gap: 0.6rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.jour-liste {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.75rem;
+	}
+
+	.jour-liste.passe {
+		opacity: 0.45;
+	}
+
+	.date {
+		display: flex;
+		flex: none;
+		flex-direction: column;
+		align-items: center;
+		width: 3.4rem;
+		margin: 0;
+		padding: 0.3rem 0 0.2rem;
+		line-height: 1;
+		color: var(--creme);
+		background: var(--brun);
+		border-radius: 0.6rem;
+		box-shadow: 2px 2px 0 var(--vert);
+	}
+
+	.aujourdhui .date {
+		background: var(--rose-fonce);
+	}
+
+	.date span {
+		font-size: 0.75rem;
+		font-weight: 800;
+		text-transform: uppercase;
+	}
+
+	.date strong {
+		font-family: var(--font-titre);
+		font-size: 1.5rem;
+		font-weight: 400;
+	}
+
+	.jour-liste ul {
+		display: flex;
+		flex: 1;
+		flex-wrap: wrap;
+		gap: 0.4rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.jour-liste .creneau {
+		flex: 1 1 9rem;
+	}
+
+	.rien {
+		font-style: italic;
+		text-align: center;
+	}
+
+	/* --- Légende et lien vers l'affiche --- */
+	.pied-mois {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.5rem 1.5rem;
+		margin-top: 1.25rem;
+		padding-top: 0.75rem;
+		border-top: 2px solid var(--vert);
+	}
+
+	.legende {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.4rem 1.25rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		font-weight: 700;
+	}
+
+	.legende li {
+		display: flex;
+		align-items: center;
+		gap: 0.4rem;
+	}
+
+	.pastille {
+		display: inline-grid;
+		place-items: center;
+		width: 1.8rem;
+		height: 1.8rem;
+		font-size: 0.95rem;
+		background: linear-gradient(110deg, var(--fond));
+		border-radius: 50%;
+	}
+
+	.notes {
+		margin: 0;
+		font-size: 0.9rem;
+		font-style: italic;
+	}
+</style>

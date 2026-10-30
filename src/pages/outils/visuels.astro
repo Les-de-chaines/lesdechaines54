@@ -35,6 +35,14 @@ const permanentes = fs
 		const nom = fichier.replace(/\.astro$/, '');
 		const source = fs.readFileSync(`src/pages/affiches/${fichier}`, 'utf-8');
 		const titre = source.match(/<FeuilleA4 titre="([^"]+)"/)?.[1] ?? nom;
+		// Agenda du mois (agenda-AAAA-MM.astro) : titre tiré du nom de fichier
+		const agenda = nom.match(/^agenda-(\d{4})-(\d{2})$/);
+		if (agenda) {
+			const mois = new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(
+				new Date(Date.UTC(+agenda[1], +agenda[2] - 1, 1)),
+			);
+			return { nom, date: '', titre: `Agenda de ${mois}`, jour: 'Créneaux du mois', cles: ['a4', 'instagram'] };
+		}
 		return { nom, date: '', titre, jour: 'Toute l’année', cles: ['a4', 'instagram'] };
 	});
 affiches.unshift(...permanentes);

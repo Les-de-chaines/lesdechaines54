@@ -1,0 +1,477 @@
+---
+// Affiche « agenda du mois » : calendrier mensuel des créneaux de la taverne, lus dans l'agenda Google (src/lib/agenda.ts).
+// Même parchemin sur cadre brun que la carte et la guilde. Une pastille colorée par créneau, la légende ne garde
+// que les activités du mois. Chaque mois a sa page dans src/pages/affiches/agenda-AAAA-MM.astro.
+import { Image } from 'astro:assets';
+import FeuilleA4 from './FeuilleA4.astro';
+import Embleme from './Embleme.astro';
+import logo from '../assets/logo.png';
+import { activites, horaire, moisAgenda, nomsJours, precision, type Activite, type Creneau } from '../lib/agenda';
+import { site } from '../lib/site';
+import { qrSvg } from '../lib/qr';
+
+interface Props {
+	/** AAAA-MM */
+	mois: string;
+}
+
+const { mois } = Astro.props;
+const { annee, numero, nomMois, parJour, cases, semaines, periode, vacancesDuMois, rubans, presentes, aConfirmer, duMois } =
+	await moisAgenda(mois);
+const titre = `Agenda de ${nomMois} ${annee}`;
+
+// Petite touche de saison à côté de l'année
+const saisons: Record<number, string> = { 9: '🍂', 10: '🎃', 11: '🍂', 12: '❄️', 1: '❄️', 2: '❄️', 3: '🌱', 4: '🌷', 5: '🌷', 6: '☀️', 7: '☀️', 8: '☀️' };
+
+// Créneau compact (une case peut en avoir trois) : l'emoji de l'activité et l'horaire, sur la couleur de l'activité
+// (expliquée par la légende), coupée en biais quand il y en a deux. La précision (« Unlock ! ») en dessous ; le nom en infobulle.
+const titreCreneau = (c: Creneau) => c.activites.map((a) => `${activites[a].emoji} ${activites[a].nom}`).join(' + ');
+
+// Fond d'une pastille : une couleur par activité, en bandes nettes coupées en biais
+const fond = (liste: Activite[]) =>
+	`--fond: ${liste.map((a, i) => `var(--${a}) ${(i * 100) / liste.length}% ${((i + 1) * 100) / liste.length}%`).join(', ')}`;
+
+const qr = await qrSvg(site.reseaux.facebook, '#3e2416', '#f3e2b6');
+const { rue, codePostal, ville } = site.adresse;
+---
+
+<FeuilleA4 titre={titre} class="agenda">
+	<div class="ombre">
+		<div class="page" style={`--semaines: ${semaines}`}>
+			<Embleme class="filigrane" />
+
+			<header class="entete">
+				<div class="marque">
+					<Image src={logo} alt="" width={300} height={300} class="logo" />
+					<div>
+						<p class="nom-site">{site.nom}</p>
+						<p class="accroche-site">{site.accroche}</p>
+					</div>
+				</div>
+				<p class="bandeau">Agenda de la taverne</p>
+				<h1>{nomMois}</h1>
+				<p class="annee"><span>{saisons[numero]}</span> {annee} <span>{saisons[numero]}</span></p>
+			</header>
+
+			<div class="calendrier">
+				{nomsJours.map((nom) => <p class="nom-jour">{nom}</p>)}
+				{
+					cases.map((jour, i) => {
+						const liste = jour ? (parJour.get(jour) ?? []) : [];
+						// Place explicite : le ruban des vacances se pose par-dessus la semaine au lieu de la décaler
+						return (
+							<div
+								class:list={['jour', { vide: !jour, occupe: liste.length > 0, vacances: periode(jour) }]}
+								style={`grid-area: ${Math.floor(i / 7) + 2} / ${(i % 7) + 1}`}
+							>
+								{jour && <p class="numero">{jour}</p>}
+								{liste.map((c) => (
+									<p
+										class:list={['creneau', { incertain: c.aConfirmer }]}
+										style={fond(c.activites)}
+										title={titreCreneau(c)}
+									>
+										<span class="horaire">
+											<span class="emoji">{c.activites.map((a) => activites[a].emoji).join('')}</span>
+											{horaire(c)}
+											{c.aConfirmer && '*'}
+										</span>
+										{precision(c) && <span class="quoi">{precision(c)}</span>}
+									</p>
+								))}
+							</div>
+						);
+					})
+				}
+				{
+					// + 2 : la première ligne de la grille est celle des noms de jours
+					rubans.map(({ nom, emoji, mention, semaine }) => (
+						<p class="ruban" style={`grid-row: ${semaine + 2}`}>
+							<span class="ruban-nom">{emoji} {nom} {emoji}</span>
+							<span class="ruban-mention">{mention}</span>
+						</p>
+					))
+				}
+			</div>
+
+			<div class="legende">
+				<ul>
+					{
+						presentes.map((a) => (
+							<li style={fond([a])}>
+								<span class="pastille">{activites[a].emoji}</span>
+								{activites[a].nom}
+							</li>
+						))
+					}
+				</ul>
+				{
+					vacancesDuMois.map(({ nom, mention }) => (
+						<p class="note-vacances">
+							<span class="pastille-vacances" /> {nom} : {mention.toLowerCase()}
+						</p>
+					))
+				}
+				<p class="note">
+					{aConfirmer && <>* horaire à confirmer · </>}
+					{duMois.length ? 'Programme susceptible d’évoluer : suivez-nous pour les nouveautés !' : 'Programme à venir : suivez-nous pour les nouveautés !'}
+				</p>
+			</div>
+
+			<footer class="pied">
+				<p>
+					{rue}, {codePostal} {ville}<br />
+					<span class="mentions">Association loi 1901, animée par des bénévoles</span>
+				</p>
+				<div class="qr">
+					<p>Suivez-nous<br />sur Facebook&nbsp;!</p>
+					<span class="qr-code" set:html={qr} />
+				</div>
+			</footer>
+		</div>
+	</div>
+</FeuilleA4>
+
+<style>
+	:global(.agenda) {
+		--vert-fonce: #4b7a1c;
+		--encre: #4a2a12;
+		/* Couleurs des activités (pastilles et légende) */
+		--jeux: #4b7a1c;
+		--figurines: #b02462;
+		--bloodbowl: #3e2416;
+		--special: #b8860b;
+		padding: 7mm;
+		background: var(--brun);
+	}
+
+	.ombre {
+		height: 100%;
+		filter: drop-shadow(1mm 1.5mm 0 rgb(0 0 0 / 0.45));
+	}
+
+	.page {
+		position: relative;
+		isolation: isolate;
+		display: flex;
+		flex-direction: column;
+		height: 100%;
+		padding: 8mm 9mm 7mm;
+		color: var(--encre);
+		background: var(--parchemin-fond);
+		background-size: var(--parchemin-taille);
+		box-shadow: var(--parchemin-bords);
+		clip-path: var(--parchemin-contour);
+	}
+
+	.page > :global(.filigrane) {
+		position: absolute;
+		z-index: -1;
+		left: 50%;
+		top: 58%;
+		width: 150mm;
+		color: var(--encre);
+		opacity: 0.06;
+		transform: translate(-50%, -50%) rotate(-8deg);
+	}
+
+	/* En-tête : logo et nom en petit, puis le mois en très grand */
+	.entete {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+	}
+
+	.marque {
+		display: flex;
+		align-items: center;
+		gap: 3mm;
+		text-align: left;
+	}
+
+	.logo {
+		width: 14mm;
+		height: 14mm;
+		border-radius: 50%;
+		border: 0.8mm solid var(--vert);
+		box-shadow: 0 0 0 0.4mm var(--encre);
+	}
+
+	.nom-site {
+		font-family: var(--font-titre);
+		font-size: 6mm;
+		line-height: 1;
+	}
+
+	.accroche-site {
+		font-size: 3.6mm;
+		font-weight: 700;
+		font-style: italic;
+		color: var(--rose-fonce);
+	}
+
+	/* Ruban rose aux extrémités en queue d'aronde */
+	.bandeau {
+		margin-top: 4mm !important;
+		padding: 1.2mm 9mm 0.8mm;
+		font-family: var(--font-titre);
+		font-size: 4.6mm;
+		letter-spacing: 0.08em;
+		color: var(--blanc);
+		background: var(--rose-fonce);
+		clip-path: polygon(0 0, 100% 0, calc(100% - 3mm) 50%, 100% 100%, 0 100%, 3mm 50%);
+	}
+
+	h1 {
+		margin: 1mm 0 0;
+		font-size: 21mm;
+		line-height: 1;
+		text-transform: capitalize;
+		color: var(--brun);
+		text-shadow: 1.2mm 1.2mm 0 var(--vert);
+	}
+
+	.annee {
+		margin-top: -2mm !important;
+		font-family: var(--font-titre);
+		font-size: 7mm;
+		letter-spacing: 0.15em;
+		color: var(--vert-fonce);
+	}
+
+	.annee span {
+		font-size: 5mm;
+		letter-spacing: 0;
+	}
+
+	/* Calendrier : en-tête des jours, puis une ligne par semaine qui se partagent la hauteur libre */
+	.calendrier {
+		flex: 1;
+		min-height: 0;
+		display: grid;
+		grid-template-columns: repeat(7, minmax(0, 1fr));
+		grid-template-rows: auto repeat(var(--semaines), 1fr);
+		gap: 1mm;
+		margin-top: 3mm;
+	}
+
+	.nom-jour {
+		padding: 1mm 0 0.6mm;
+		font-family: var(--font-titre);
+		font-size: 4mm;
+		letter-spacing: 0.05em;
+		text-align: center;
+		color: var(--creme);
+		background: var(--brun);
+		border-radius: 1.2mm;
+	}
+
+	.jour {
+		display: flex;
+		flex-direction: column;
+		gap: 0.7mm;
+		min-height: 0;
+		padding: 0.8mm;
+		background: rgb(255 250 235 / 0.35);
+		border: 0.4mm solid rgb(74 42 18 / 0.35);
+		border-radius: 1.5mm;
+	}
+
+	.jour.vide {
+		background: none;
+		border: 0.4mm dashed rgb(74 42 18 / 0.18);
+	}
+
+	.jour.occupe {
+		background: rgb(255 250 235 / 0.6);
+		border-color: rgb(74 42 18 / 0.6);
+	}
+
+	.numero {
+		font-family: var(--font-titre);
+		font-size: 4.6mm;
+		line-height: 1;
+		opacity: 0.55;
+	}
+
+	.occupe .numero {
+		color: var(--rose-fonce);
+		opacity: 1;
+	}
+
+	/* Pastille d'un créneau : couleur de l'activité, coupée en biais quand il y en a deux */
+	.creneau {
+		display: flex;
+		flex-direction: column;
+		padding: 0.7mm 0.8mm;
+		color: var(--creme);
+		background: linear-gradient(110deg, var(--fond));
+		border-radius: 1.2mm;
+		box-shadow: 0.4mm 0.5mm 0 rgb(0 0 0 / 0.25);
+		line-height: 1.15;
+	}
+
+	.creneau.incertain {
+		outline: 0.4mm dashed var(--creme);
+		outline-offset: -0.5mm;
+	}
+
+	.horaire {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		gap: 0.5mm;
+		font-size: 2.8mm;
+		font-weight: 800;
+		letter-spacing: -0.03em;
+		white-space: nowrap;
+	}
+
+	/* Emoji un peu plus petit que l'horaire, pour que « 🎲 13h30 – 18h30 » tienne dans la case */
+	.emoji {
+		font-size: 2.3mm;
+		letter-spacing: -0.4mm;
+	}
+
+	.quoi {
+		text-align: left;
+		font-size: 2.7mm;
+		font-weight: 700;
+		white-space: nowrap;
+	}
+
+	/* Vacances scolaires : cases rayées de rose, et ruban sur une semaine encore libre */
+	.jour.vacances,
+	.pastille-vacances {
+		background: repeating-linear-gradient(-45deg, rgb(214 51 122 / 0.12) 0 1.5mm, rgb(255 250 235 / 0.45) 1.5mm 3mm);
+		border-color: rgb(176 36 98 / 0.5);
+	}
+
+	.ruban {
+		grid-column: 1 / -1;
+		align-self: center;
+		justify-self: center;
+		z-index: 1;
+		margin-top: 5mm;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		padding: 2mm 16mm 2.2mm;
+		color: var(--blanc);
+		text-align: center;
+		background: var(--rose-fonce);
+		clip-path: polygon(0 0, 100% 0, calc(100% - 5mm) 50%, 100% 100%, 0 100%, 5mm 50%);
+		filter: drop-shadow(0.6mm 0.8mm 0 rgb(0 0 0 / 0.3));
+		transform: rotate(-2deg);
+	}
+
+	.ruban-nom {
+		font-size: 4mm;
+		font-weight: 800;
+		letter-spacing: 0.03em;
+	}
+
+	.ruban-mention {
+		font-family: var(--font-titre);
+		font-size: 8mm;
+		line-height: 1.1;
+		letter-spacing: 0.04em;
+	}
+
+	.note-vacances {
+		margin-top: 2mm !important;
+		font-size: 3.8mm;
+		font-weight: 800;
+		color: var(--rose-fonce);
+	}
+
+	.pastille-vacances {
+		display: inline-block;
+		width: 4mm;
+		height: 4mm;
+		vertical-align: -0.6mm;
+		border: 0.4mm solid;
+		border-radius: 1mm;
+	}
+
+	/* Légende : une pastille par activité du mois */
+	.legende {
+		margin-top: 3mm;
+		text-align: center;
+	}
+
+	.legende ul {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 2mm 6mm;
+		font-size: 4.2mm;
+		font-weight: 800;
+	}
+
+	.legende li {
+		display: flex;
+		align-items: center;
+		gap: 1.5mm;
+	}
+
+	.pastille {
+		display: inline-grid;
+		place-items: center;
+		width: 7mm;
+		height: 7mm;
+		font-size: 3.8mm;
+		background: linear-gradient(110deg, var(--fond));
+		border-radius: 50%;
+		box-shadow: 0.4mm 0.5mm 0 rgb(0 0 0 / 0.25);
+	}
+
+	.note {
+		margin-top: 1.5mm !important;
+		font-size: 3.5mm;
+		font-style: italic;
+		font-weight: 700;
+		opacity: 0.85;
+	}
+
+	.pied {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		gap: 6mm;
+		margin-top: 3mm;
+		padding-top: 2.5mm;
+		font-size: 3.8mm;
+		font-weight: 700;
+		line-height: 1.4;
+		border-top: 0.8mm solid var(--vert-fonce);
+	}
+
+	.mentions {
+		font-size: 3.1mm;
+		font-style: italic;
+		opacity: 0.8;
+	}
+
+	.qr {
+		display: flex;
+		flex: none;
+		align-items: center;
+		gap: 3mm;
+		text-align: right;
+		font-weight: 800;
+	}
+
+	.qr-code {
+		display: block;
+		flex: none;
+		width: 15mm;
+	}
+
+	.qr-code :global(svg) {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+</style>
