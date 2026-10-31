@@ -4,6 +4,8 @@ export const site = {
 	nom: 'Les Dé-chaînés',
 	presidente: 'Cindy MANEL',
 	accroche: 'Café jeux associatif à Custines',
+	/** Adresse du site (QR code de l'affiche « site internet ») : à changer le jour où le site a son nom de domaine */
+	url: 'https://les-de-chaines.github.io/lesdechaines54/',
 	devise: "Déchaînez l'aventurier qui sommeille en vous !",
 	slogan: 'Jeux de société · Figurines · Ateliers · Tournois · Café & gourmandises',
 	adresse: {

@@ -1,0 +1,243 @@
+---
+// Petite affiche du site internet (format A6 portrait), sans date : quatre exemplaires sur la feuille A4, à découper
+// le long des pointillés (à poser sur les tables, au comptoir…). Même parchemin sur cadre brun que la carte et la guilde.
+// Tout est centré : nom et devise, titre, QR code, puis une rangée d'icônes des activités (le slogan du site).
+// Le QR code mène à l'adresse du site (src/lib/site.ts).
+import { Image } from 'astro:assets';
+import FeuilleA4 from '../../components/FeuilleA4.astro';
+import Embleme from '../../components/Embleme.astro';
+import logo from '../../assets/logo.png';
+import { site } from '../../lib/site';
+import { qrSvg } from '../../lib/qr';
+
+const qr = await qrSvg(site.url, '#3e2416', '#fbf6ea');
+// Adresse lisible sous le QR code, sans « https:// » ni barre finale
+const adresse = site.url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+
+// Les activités du slogan (src/lib/site.ts : « Jeux de société · Figurines · … »), chacune avec son emoji
+const emojis: Record<string, string> = {
+	'Jeux de société': '🎲',
+	Figurines: '⚔️',
+	Ateliers: '🎨',
+	Tournois: '🏆',
+	'Café & gourmandises': '☕',
+};
+const rubriques = site.slogan.split(' · ').map((texte) => ({ texte, emoji: emojis[texte] ?? '✨' }));
+---
+
+<FeuilleA4 titre="Notre site internet" class="qr-site">
+	{
+		[1, 2, 3, 4].map(() => (
+			<div class="exemplaire">
+				<div class="ombre">
+					<div class="page">
+						<Embleme class="filigrane" />
+
+						<header class="marque">
+							<Image src={logo} alt="" width={200} height={200} class="logo" />
+							<p class="nom-site">{site.nom}</p>
+						</header>
+						<p class="devise">{site.devise}</p>
+
+						<h1>
+							<span>Retrouvez-nous</span> en ligne&nbsp;!
+						</h1>
+
+						<div class="code">
+							<p class="ruban">Scannez-moi&nbsp;!</p>
+							<span class="qr-code" set:html={qr} />
+							<p class="adresse">{adresse}</p>
+						</div>
+
+						<ul class="rubriques">
+							{rubriques.map(({ emoji, texte }) => (
+								<li>
+									<span class="emoji">{emoji}</span>
+									{texte}
+								</li>
+							))}
+						</ul>
+					</div>
+				</div>
+			</div>
+		))
+	}
+</FeuilleA4>
+
+<style>
+	/* La feuille A4 coupée en quatre A6 portrait, séparés par des pointillés de découpe */
+	:global(.qr-site) {
+		--vert-fonce: #4b7a1c;
+		--encre: #4a2a12;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		grid-template-rows: 1fr 1fr;
+		background: var(--brun);
+	}
+
+	.exemplaire {
+		min-height: 0;
+		padding: 4mm;
+		background: var(--brun);
+	}
+
+	.exemplaire:nth-child(odd) {
+		border-right: 0.4mm dashed var(--blanc);
+	}
+
+	.exemplaire:nth-child(-n + 2) {
+		border-bottom: 0.4mm dashed var(--blanc);
+	}
+
+	.ombre {
+		height: 100%;
+		filter: drop-shadow(0.8mm 1.2mm 0 rgb(0 0 0 / 0.45));
+	}
+
+	.page {
+		position: relative;
+		isolation: isolate;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: space-between;
+		height: 100%;
+		padding: 7mm 7mm 6mm;
+		text-align: center;
+		color: var(--encre);
+		background: var(--parchemin-fond);
+		background-size: var(--parchemin-taille);
+		box-shadow: var(--parchemin-bords);
+		clip-path: var(--parchemin-contour);
+	}
+
+	.page > :global(.filigrane) {
+		position: absolute;
+		z-index: -1;
+		left: 50%;
+		top: 55%;
+		width: 80mm;
+		color: var(--encre);
+		opacity: 0.06;
+		transform: translate(-50%, -50%) rotate(-8deg);
+	}
+
+	.marque {
+		display: flex;
+		align-items: center;
+		gap: 2mm;
+	}
+
+	.logo {
+		width: 10mm;
+		height: 10mm;
+		border-radius: 50%;
+		border: 0.6mm solid var(--vert);
+		box-shadow: 0 0 0 0.3mm var(--encre);
+	}
+
+	.nom-site {
+		font-family: var(--font-titre);
+		font-size: 5.2mm;
+		line-height: 1;
+	}
+
+	.devise {
+		margin-top: -2mm !important;
+		font-size: 3.4mm;
+		font-weight: 700;
+		font-style: italic;
+		color: var(--rose-fonce);
+	}
+
+	h1 {
+		font-size: 9.5mm;
+		line-height: 1.05;
+		color: var(--brun);
+		text-shadow: 0.7mm 0.7mm 0 var(--vert);
+	}
+
+	h1 span {
+		display: block;
+		font-size: 6mm;
+		color: var(--rose-fonce);
+		text-shadow: none;
+	}
+
+	/* QR code sur une carte crème légèrement inclinée, avec un ruban rose au-dessus */
+	.code {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		padding: 6.5mm 4mm 2.5mm;
+		background: var(--creme);
+		border: 0.7mm solid var(--brun);
+		border-radius: 2.5mm;
+		box-shadow: 1mm 1mm 0 var(--vert);
+		transform: rotate(-1.5deg);
+	}
+
+	.ruban {
+		position: absolute;
+		top: -3.5mm;
+		left: 50%;
+		translate: -50% 0;
+		padding: 1mm 6mm 0.7mm;
+		font-family: var(--font-titre);
+		font-size: 4.4mm;
+		letter-spacing: 0.05em;
+		white-space: nowrap;
+		color: var(--blanc);
+		background: var(--rose-fonce);
+		clip-path: polygon(0 0, 100% 0, calc(100% - 2.2mm) 50%, 100% 100%, 0 100%, 2.2mm 50%);
+	}
+
+	.qr-code {
+		display: block;
+		width: 48mm;
+	}
+
+	.qr-code :global(svg) {
+		display: block;
+		width: 100%;
+		height: auto;
+	}
+
+	.adresse {
+		margin-top: 1.5mm !important;
+		font-size: 2.6mm;
+		font-weight: 800;
+	}
+
+	/* Rangée d'icônes : un rond crème par rubrique, son mot dessous */
+	.rubriques {
+		display: flex;
+		justify-content: center;
+		align-items: flex-start;
+		gap: 1mm;
+	}
+
+	.rubriques li {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.8mm;
+		width: 15mm;
+		font-size: 2.7mm;
+		font-weight: 800;
+		line-height: 1.1;
+	}
+
+	.emoji {
+		display: grid;
+		place-items: center;
+		width: 9mm;
+		height: 9mm;
+		font-size: 4.8mm;
+		background: var(--creme);
+		border: 0.5mm solid var(--vert-fonce);
+		border-radius: 50%;
+		box-shadow: 0.5mm 0.5mm 0 var(--vert);
+	}
+</style>

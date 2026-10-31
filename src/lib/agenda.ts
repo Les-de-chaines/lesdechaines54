@@ -179,6 +179,22 @@ function versCreneaux(ics: string, limite: string): Creneau[] {
 let chargement: Promise<Creneau[]> | undefined;
 let chargeLe = 0;
 const dureeCacheDev = 30_000;
+// Dernier agenda lu avec succès : il reste affiché si Google ne répond pas (coupure réseau passagère)
+let dernierLu: Creneau[] | undefined;
+
+/** Télécharge l'agenda, en réessayant deux fois (une seconde puis trois) si Google ne répond pas */
+async function telecharger(adresse: string): Promise<string> {
+	for (let essai = 1; ; essai++) {
+		try {
+			const reponse = await fetch(adresse, { signal: AbortSignal.timeout(15_000) });
+			if (!reponse.ok) throw new Error(`HTTP ${reponse.status}`);
+			return await reponse.text();
+		} catch (erreur) {
+			if (essai === 3) throw erreur;
+			await new Promise((ok) => setTimeout(ok, essai === 1 ? 1000 : 3000));
+		}
+	}
+}
 
 /** Créneaux de l'agenda, du plus ancien au plus récent (jusqu'à fin 2027 pour les récurrences sans fin) */
 export function creneaux(): Promise<Creneau[]> {
@@ -191,10 +207,15 @@ export function creneaux(): Promise<Creneau[]> {
 			return [];
 		}
 		try {
-			const reponse = await fetch(adresse);
-			if (!reponse.ok) throw new Error(`HTTP ${reponse.status}`);
-			return versCreneaux(await reponse.text(), '2027-12-31');
+			dernierLu = versCreneaux(await telecharger(adresse), '2027-12-31');
+			return dernierLu;
 		} catch (erreur) {
+			// Échec non gardé en cache : le prochain affichage de page réessaie
+			chargement = undefined;
+			if (dernierLu) {
+				console.warn(`[agenda] Agenda Google injoignable (${erreur}) : on garde la dernière version lue`);
+				return dernierLu;
+			}
 			console.warn(`[agenda] Agenda Google injoignable (${erreur}) : affiches agenda sans créneaux`);
 			return [];
 		}
