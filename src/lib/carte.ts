@@ -1,4 +1,6 @@
 // Carte de la buvette : une seule source pour la page du site et les affiches à imprimer.
+// Les rubriques sont celles de la caisse de l'admin (catégories avec une position, même ordre) :
+// une rubrique ou un produit ajouté ici doit aussi exister dans l'admin pour pouvoir être encaissé.
 // `aVerifier` surligne en jaune un prix encore à confirmer (à retirer une fois le prix fixé).
 
 export interface Article {
