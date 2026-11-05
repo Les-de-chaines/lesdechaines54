@@ -1,7 +1,7 @@
 ---
 // Agenda de la taverne sur le site (page Événements) : les mêmes mois et créneaux que les affiches agenda-AAAA-MM
 // (src/lib/agenda.ts), mais dessinés pour le site : une carte, un mois à la fois avec des flèches pour changer de mois.
-// Grand écran : calendrier mensuel. Mobile : la liste des jours où la taverne est ouverte.
+// Calendrier mensuel (horaire et activité dans chaque case), puis le programme du mois en liste dessous.
 // Sans JavaScript, tous les mois s'affichent les uns sous les autres.
 import fs from 'node:fs';
 import Embleme from './Embleme.astro';
@@ -18,6 +18,8 @@ const dateCourte = (date: string) =>
 // Fond d'une pastille : une couleur par activité, en bandes nettes coupées en biais
 const fond = (liste: Activite[]) =>
 	`--fond: ${liste.map((a, i) => `var(--${a}) ${(i * 100) / liste.length}% ${((i + 1) * 100) / liste.length}%`).join(', ')}`;
+// « 18h30 – minuit » → [« 18h30 », « minuit »] : la fin (précédée d'un tiret) passe à la ligne quand la case est étroite
+const heures = (c: Creneau) => horaire(c).split(/\s–\s/);
 const nom = (c: Creneau) => c.activites.map((a) => (a === 'special' ? '' : activites[a].nom)).filter(Boolean).join(' + ');
 ---
 
@@ -45,7 +47,7 @@ const nom = (c: Creneau) => c.activites.map((a) => (a === 'special' ? '' : activ
 						</p>
 					))}
 
-					{/* Grand écran : le calendrier du mois */}
+					{/* Le calendrier du mois */}
 					<div class="grille-mois" aria-hidden="true">
 						{nomsJours.map((jour) => (
 							<p class="nom-jour">{jour}</p>
@@ -59,10 +61,18 @@ const nom = (c: Creneau) => c.activites.map((a) => (a === 'special' ? '' : activ
 								>
 									{jour && <span class="numero">{jour}</span>}
 									{liste.map((c) => (
-										<p class:list={['creneau', { incertain: c.aConfirmer }]} style={fond(c.activites)}>
-											<span class="horaire">
-												{c.activites.map((a) => activites[a].emoji).join('')} {horaire(c)}
-												{c.aConfirmer && '*'}
+										<p class:list={['creneau', 'creneau-case', { incertain: c.aConfirmer }]} style={fond(c.activites)}>
+											<span class="horaire-case">
+												<span class="emoji">{c.activites.map((a) => activites[a].emoji).join('')}</span>
+												<span class="heures">
+													{heures(c).map((h, i, tout) => (
+														<span>
+															{i > 0 && <span class="tiret">– </span>}
+															{h}
+															{c.aConfirmer && i === tout.length - 1 && '*'}
+														</span>
+													))}
+												</span>
 											</span>
 											<span class="quoi">{[nom(c), precision(c)].filter(Boolean).join(' · ')}</span>
 										</p>
@@ -72,7 +82,8 @@ const nom = (c: Creneau) => c.activites.map((a) => (a === 'special' ? '' : activ
 						})}
 					</div>
 
-					{/* Mobile (et lecteurs d'écran) : les jours d'ouverture, en liste */}
+					{/* Détail des créneaux, sous le calendrier */}
+					<h4 class="titre-liste">Le programme du mois</h4>
 					<ol class="liste-jours">
 						{[...parJour.entries()].map(([jour, liste]) => (
 							<li class="jour-liste" data-date={dateDuJour(jour)}>
@@ -265,26 +276,111 @@ const nom = (c: Creneau) => c.activites.map((a) => (a === 'special' ? '' : activ
 		opacity: 0.95;
 	}
 
-	/* --- Grand écran : calendrier --- */
+	/* --- Calendrier --- */
 	.grille-mois {
-		display: none;
+		display: grid;
+		grid-template-columns: repeat(7, minmax(0, 1fr));
+		gap: 0.4rem;
 	}
 
-	@media (min-width: 48rem) {
+	/* Créneau dans une case : l'emoji et l'horaire (la fin passe à la ligne si la case est étroite), puis l'activité */
+	.creneau-case {
+		padding: 0.25rem 0.4rem;
+		font-size: clamp(0.65rem, 1.1vw, 0.85rem);
+	}
+
+	.horaire-case {
+		display: flex;
+		align-items: flex-start;
+		gap: 0.3rem;
+		font-weight: 800;
+		line-height: 1.15;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.creneau-case .emoji {
+		flex: none;
+		font-size: 0.85em;
+		letter-spacing: -0.15em;
+	}
+
+	.creneau-case .heures {
+		display: flex;
+		flex-wrap: wrap;
+		column-gap: 0.25em;
+		min-width: 0;
+	}
+
+	.creneau-case .heures span {
+		white-space: nowrap;
+	}
+
+	.creneau-case .quoi {
+		font-size: 0.88em;
+		overflow-wrap: anywhere;
+	}
+
+	/* Mobile : cases étroites, tout en plus petit ; l'emoji passe au-dessus de l'horaire, sans le nom de l'activité */
+	@media (max-width: 47.99rem) {
 		.grille-mois {
-			display: grid;
-			grid-template-columns: repeat(7, minmax(0, 1fr));
-			gap: 0.4rem;
+			gap: 0.2rem;
 		}
 
-		.liste-jours {
-			/* Gardée pour les lecteurs d'écran, la grille étant masquée pour eux */
-			position: absolute;
-			width: 1px;
-			height: 1px;
-			overflow: hidden;
-			clip-path: inset(50%);
+		.grille-mois .nom-jour {
+			font-size: 0.75rem;
 		}
+
+		.grille-mois .jour {
+			min-height: 3.2rem;
+			padding: 0.15rem;
+			gap: 0.2rem;
+		}
+
+		.grille-mois .numero {
+			font-size: 0.85rem;
+		}
+
+		.grille-mois .jour.aujourdhui .numero::after {
+			content: none;
+		}
+
+		.grille-mois .creneau-case {
+			padding: 0.15rem 0.1rem;
+			font-size: 0.58rem;
+			letter-spacing: -0.03em;
+			border-radius: 0.35rem;
+		}
+
+		.grille-mois .horaire-case {
+			flex-direction: column;
+			align-items: center;
+			gap: 0.1rem;
+			text-align: center;
+		}
+
+		.grille-mois .creneau-case .heures {
+			flex-direction: column;
+			align-items: center;
+		}
+
+		/* Début et fin l'un sous l'autre : le tiret ne sert plus */
+		.grille-mois .creneau-case .tiret {
+			display: none;
+		}
+
+		/* Trop étroit pour le nom : la couleur et l'emoji disent l'activité */
+		.grille-mois .creneau-case .quoi {
+			display: none;
+		}
+	}
+
+	/* Titre de la liste, seulement quand elle suit le calendrier */
+	.titre-liste {
+		margin: 1.5rem 0 0.75rem;
+		font-family: var(--font-titre);
+		font-size: 1.2rem;
+		font-weight: 400;
+		text-align: center;
 	}
 
 	.nom-jour {
@@ -303,7 +399,7 @@ const nom = (c: Creneau) => c.activites.map((a) => (a === 'special' ? '' : activ
 		display: flex;
 		flex-direction: column;
 		gap: 0.3rem;
-		min-height: 6.5rem;
+		min-height: 5rem;
 		padding: 0.35rem;
 		background: var(--creme);
 		border: 2px solid rgb(62 36 22 / 0.15);

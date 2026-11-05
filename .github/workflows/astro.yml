@@ -12,6 +12,11 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+  # L'agenda Google n'est lu qu'au build et ne peut pas déclencher de déploiement :
+  # on reconstruit le site toutes les heures pour reprendre ses modifications (heure en UTC)
+  schedule:
+    - cron: "17 * * * *"
+
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
